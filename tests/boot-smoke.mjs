@@ -31,6 +31,7 @@ try {
       !document.querySelector("#auth-view")?.classList.contains("hidden")
     );
     assert.equal(await page.locator("#auth-view").isVisible(), true, `${device.name}: auth screen did not appear`);
+    assert.equal(await page.locator("#rotate-gate").isVisible(), false, `${device.name}: rotate gate blocked account entry`);
     await context.close();
     console.log(`PASS: ${device.name} startup entry`);
   }
