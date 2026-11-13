@@ -1,92 +1,47 @@
 # LOOP OUT — Tactical Operations
 
-A browser-based first-person shooter built with plain HTML/CSS/JavaScript and Three.js.
+LOOP OUT is a browser-based first-person shooter built with HTML, CSS, JavaScript and Three.js. The production GitHub Pages source is the `main` branch.
 
-## Current development: Stage 2 + Stage 3
+## Included game
 
-### Stage 2 — 3D gameplay foundation
+- RAAZIM startup screen before account access.
+- Supabase callsign/password account flow and persistent browser sessions.
+- Recon, Assault and Support operator selection.
+- Two game modes: Open World and Small Arena.
+- First-person movement, mouse aiming and mobile touch controls.
+- Weapon model, recoil, sway, muzzle flash, synthesized firing sound, ammunition and reload.
+- Training targets and local AI opponents with local damage, eliminations and respawn.
+- Supabase Realtime presence, remote player nameplates and movement broadcasts.
+- Landscape-first mobile game layout, safe-area-aware HUD and touch-oriented rendering quality.
+- Kenney CC0 environment assets; see `assets/blackout/CREDITS.md`.
 
-Implemented in the development branch:
-- LOOP OUT identity, callsign/password UI, operator selection and exactly two modes.
-- Two different 3D layouts: Open World training compound and Small Arena.
-- First-person movement, mouse look, mobile touch movement and aiming.
-- Visible rifle model, recoil, weapon sway, muzzle flash and synthesized shot sound.
-- Raycast target practice, ammo, reload, score and target respawn.
-- Local GLB environment assets with procedural geometry fallback.
-- Responsive HUD with health, score, ammunition and room player count.
+## Controls
 
-### Stage 3 — first multiplayer layer
+**Desktop:** WASD to move, Shift to sprint, mouse to aim, click to fire, R to reload.
 
-Implemented in this branch:
-- Authenticated Supabase Realtime private channels for the two modes: `loopout:open_world` and `loopout:small_arena`.
-- Presence tracking for connected players.
-- Position and facing broadcasts at approximately 10 updates per second.
-- Basic remote operator avatars with nameplates and smoothed movement.
-- Player count and connection status in the HUD.
-- Realtime authorization policies scoped only to the two LOOP OUT channel names.
+**Touch devices:** left virtual stick to move, drag the field to aim, FIRE and RELOAD controls. The game requests landscape orientation and fullscreen after the user's startup gesture. Some mobile browsers (including iOS Safari in certain contexts) do not permit websites to force orientation; the rotate prompt is the fallback.
 
-This is an initial synchronization prototype, not a finished multiplayer shooter. Both modes currently use one shared channel each; there is no matchmaking, room capacity, party system or match-instance allocation.
+## Multiplayer and security limitations
 
-## What is still missing
+The current multiplayer layer is a realtime presence/position-sharing prototype. Each mode currently has one shared channel, not individual match instances. There is no matchmaking, party system or room capacity. Client-reported positions can be spoofed. AI, hit detection, damage, death and respawn are local to each browser and are not server-authoritative.
 
-- Browser testing on desktop and mobile, including two separate authenticated browser sessions.
-- A server-authoritative game server. Clients currently send their own positions, so a modified client can spoof movement.
-- Server-validated shooting, hit detection, health, damage, death and respawn.
-- Real weapon audio assets, reload animation, character animation and detailed player models.
-- Moving AI opponents, missions, progression and production-scale maps.
-- Network interpolation/lag compensation, anti-cheat and load testing.
+A dedicated authoritative game server is still required for production online PvP, synchronized combat, reliable match state and anti-cheat. This branch has passed JavaScript syntax and entrypoint checks, but has not been validated through full desktop/mobile browser QA or two real simultaneous player sessions.
 
-Do not treat client-broadcast movement or local target hits as secure competitive gameplay.
+## Supabase configuration
 
-## Supabase setup and data boundaries
+The game uses the already-authorized Supabase project and its existing game-specific profile table, `public.blackout_player_profiles`. Legacy BLACKOUT-prefixed database objects remain for compatibility; visible game branding is LOOP OUT. The browser must use only the publishable key. Never expose a service-role key in frontend code.
 
-The game uses the already-authorized Supabase project. It does not create a separate project or modify other applications' tables.
+Before nickname/password signup and private realtime channels work correctly, verify these Supabase dashboard settings:
 
-The existing BLACKOUT-prefixed database objects are retained as an internal legacy namespace for compatibility:
-- Player profiles: `public.blackout_player_profiles`
-- Signup metadata tag: `app='blackout'`
-- Realtime channel names and visible branding use LOOP OUT.
+1. **Realtime → Settings:** disable **Allow public access to channels** so private-channel RLS policies are enforced.
+2. **Authentication → Sign In / Providers:** disable email confirmation for this synthetic-email callsign flow, or configure a compatible confirmation process.
 
-The auth trigger only creates a game profile for users carrying the game metadata tag. Supabase Auth itself is shared by the existing Supabase project, so this is not full service-level auth isolation. The browser uses only the publishable key; never put a service-role or secret key in frontend code.
+The SQL setup and realtime authorization migration are in `supabase/schema.sql` and `supabase/migrations/`. Auth is shared at the Supabase project level; the profile table and trigger metadata are namespaced, but this is not full service-level auth isolation.
 
-Required dashboard settings:
-1. In Supabase Dashboard, open **Realtime → Settings**.
-2. Disable **Allow public access to channels** so the private-channel RLS policies are enforced.
-3. In **Authentication → Sign In / Providers**, disable email confirmations for this nickname/password prototype, or configure a compatible email flow. The UI maps callsigns to synthetic internal email identifiers, so players do not enter email addresses.
+## Deployment
 
-The Realtime policies are in `supabase/migrations/20261113_loop_out_realtime_room_authorization.sql`. They allow authenticated users to read/write Presence and Broadcast only on the two named LOOP OUT topics. The migration does not create or alter other apps' tables.
+GitHub Pages deploys from `main`. The root `index.html`, `game.js`, assets, and Supabase SQL files are included in this branch. Three.js and GLTFLoader are loaded from jsDelivr.
 
-## Run
+## Validation
 
-Serve the repository using GitHub Pages or a local static server. Three.js and GLTFLoader are loaded from jsDelivr.
-
-Desktop: WASD to move, Shift to sprint, mouse to aim, click to fire, R to reload.
-
-Touch devices: left virtual stick to move, drag the field to aim, and use FIRE / RELOAD.
-
-## Development branch
-
-`loop-out-stage-2-3`
-
-The default branch remains untouched. The branch is not yet browser-verified; run two separate signed-in sessions in the same mode to validate the first realtime player sync.
-
-
-## RAAZIM launch and device handling
-- A branded RAAZIM startup screen precedes authentication.
-- Supabase's persistent browser session is restored after the startup screen; returning players skip the login form unless they sign out or the browser session expires.
-- The first user gesture requests fullscreen and landscape orientation where the browser supports those APIs.
-- Phones that do not permit programmatic orientation locking (notably some iOS browser contexts) receive a rotate-to-landscape gate rather than a false promise that the browser can force rotation.
-- Touch hardware uses a lower render pixel ratio and disables dynamic shadow maps to reduce GPU load. Desktop keeps higher quality rendering.
-- The game view fills the screen on touch devices in landscape, with safe-area-aware HUD and controls.
-
-
-## Combat update: local AI opponents
-- Each map now spawns a small squad of AI combatants.
-- Bots approach and strafe around the player, take shots inside engagement range, and respawn after elimination.
-- Bot damage reduces the player's health; zero health triggers a local respawn.
-- Hits on bots require two body hits in this prototype; eliminations increment the HUD counter.
-- AI, damage and respawn are currently simulated on each browser client. They are not synchronized or server-validated, so this is a playable local combat layer, not cheat-resistant online PvP.
-
-
-## Verification status
-This branch contains a browser prototype with local AI and realtime presence/position sharing. It has not been run through a real desktop browser and a real mobile browser in this environment, and the realtime experience has not been validated with two simultaneous accounts. The remaining production blockers are a dedicated authoritative game server, server-validated combat, match instances/matchmaking, and a real-device QA pass. These cannot be honestly marked complete from static repository edits alone.
+The `LOOP OUT validation` GitHub Actions workflow checks the game module syntax, inline application JavaScript syntax and required game entrypoints on pushes to `main` and pull requests targeting `main`.
