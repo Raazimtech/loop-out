@@ -1,11 +1,11 @@
-# BLACKOUT — Tactical Operations
+# LOOP OUT — Tactical Operations
 
 A browser-based first-person shooter built in stages with plain HTML/CSS/JavaScript and Three.js.
 
 ## Current stage: 2 — 3D gameplay foundation
 
 Implemented:
-- BLACKOUT identity, callsign/password account UI, operator selection and exactly two modes.
+- LOOP OUT identity, callsign/password account UI, operator selection and exactly two modes.
 - BLACKOUT-only player profile table and signup trigger, isolated with unique `blackout_` names in the already-authorized Supabase project.
 - Two distinct playable layouts: a larger Open World training compound and a compact Small Arena.
 - Three.js first-person movement, mouse look, a visible rifle model, muzzle flash, raycast hit detection, respawning target dummies, ammo/reload and score.
