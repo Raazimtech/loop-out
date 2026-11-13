@@ -96,7 +96,7 @@ let currentProfile = null;
 let selectedCharacter = "recon";
 let selectedMode = "open_world";
 const $ = id => document.getElementById(id);
-const views = ["auth-view","character-view","mode-view","lobby-view"];
+const views = ["auth-view","character-view","mode-view","lobby-view","game-view"];
 function showView(id){views.forEach(v=>$(v).classList.toggle("hidden",v!==id));}
 function setError(message){$("auth-error").textContent=message||"";}
 function usernameEmail(name){return name.trim().toLowerCase()+"@"+USERNAME_DOMAIN;}
