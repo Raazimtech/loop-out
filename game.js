@@ -74,8 +74,10 @@ function attachZombieModel(enemy,gltf){
  model.traverse(node=>{
   if(!node.isMesh)return;
   node.castShadow=true;node.receiveShadow=true;
+  if(node.geometry)node.geometry=node.geometry.clone();
   const tint=material=>{
    const copy=material.clone();
+   for(const key of Object.keys(copy)){if(copy[key]?.isTexture)copy[key]=copy[key].clone();}
    if(copy.color)copy.color.multiply(new THREE.Color(0.82,0.91,0.76));
    return copy;
   };
@@ -93,9 +95,10 @@ function attachZombieModel(enemy,gltf){
  enemy.add(model);
  d.parts=d.parts.filter(part=>part.parent);
  d.model=model;
- d.mixer=new THREE.AnimationMixer(model);
+ d.mixer=new THREE.AnimationMixer(model);d.actions={};
+ gltf.animations.forEach(clip=>{d.actions[clip.name.toLowerCase()]=d.mixer.clipAction(clip);});
  const runClip=gltf.animations.find(clip=>/run/i.test(clip.name))||gltf.animations.find(clip=>/walk/i.test(clip.name))||gltf.animations[0];
- if(runClip)d.mixer.clipAction(runClip).play();
+ if(runClip){d.activeAction=d.mixer.clipAction(runClip);d.activeAction.play();}
 }
 function loadZombieAsset(){
  if(zombieTemplate){enemies.forEach(enemy=>attachZombieModel(enemy,zombieTemplate));return;}
@@ -110,10 +113,13 @@ function updateEnemies(dt){
  const now=performance.now();
  enemies.forEach(enemy=>{
   const d=enemy.userData;
-  if(d.mixer)d.mixer.update(dt);
   if(!d.alive){if(now>=d.respawnAt){d.alive=true;d.hp=100;enemy.position.copy(d.spawn);enemy.visible=true;d.nextAttack=now+900;}return;}
+  if(d.mixer)d.mixer.update(dt);
   const dx=camera.position.x-enemy.position.x,dz=camera.position.z-enemy.position.z,dist=Math.hypot(dx,dz);
   if(d.kind==="zombie"){
+   const wanted=dist>16?"run":dist>2.2?"walk":"idle";
+   const nextAction=d.actions?.[wanted]||d.actions?.[wanted==="run"?"walk":"run"];
+   if(nextAction&&nextAction!==d.activeAction){nextAction.reset().play();if(d.activeAction)d.activeAction.crossFadeTo(nextAction,.22,false);d.activeAction=nextAction;}
    if(dist>1.35&&dist<260){
     const baseAngle=Math.atan2(dz,dx),speed=dist>18?3.05:2.05;
     const separation=new THREE.Vector2();
@@ -179,6 +185,16 @@ function damagePlayer(amount){
 }
 function updateHealthRegen(dt){
  if(playerHealth<100&&performance.now()-lastDamageAt>2500){playerHealth=Math.min(100,playerHealth+dt*8);$("game-health").textContent=String(Math.ceil(playerHealth)).padStart(3,"0");const meter=$("health-fill");if(meter){meter.style.width=playerHealth+"%";meter.style.background=playerHealth<30?"#d16b62":playerHealth<60?"#c8a66a":"#8fae91";}}
+}
+function playImpactSound(){
+ try{
+  if(!audioContext)audioContext=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioContext.state==="suspended")audioContext.resume();
+  const now=audioContext.currentTime,osc=audioContext.createOscillator(),gain=audioContext.createGain();
+  osc.type="square";osc.frequency.setValueAtTime(520,now);osc.frequency.exponentialRampToValueAtTime(180,now+.065);
+  gain.gain.setValueAtTime(.055,now);gain.gain.exponentialRampToValueAtTime(.001,now+.075);
+  osc.connect(gain);gain.connect(audioContext.destination);osc.start(now);osc.stop(now+.08);
+ }catch(_){}
 }
 function playShotSound(){
  try{
@@ -300,7 +316,7 @@ function buildWorld(mode){
  }
 
  loadEnvironmentAssets(scene,arena);
- if(!arena)loadZombieAsset();
+ loadZombieAsset();
  controls=new PointerLockControls(camera,renderer.domElement);
  controls.addEventListener("lock",()=>{$("game-help").style.display="none";});
  controls.addEventListener("unlock",()=>{if(running)$("game-help").style.display="block";});
@@ -337,7 +353,7 @@ function shoot(){
  raycaster.setFromCamera(new THREE.Vector2(0,0),camera);
  const meshes=[];targets.forEach(t=>{if(t.userData.alive)t.userData.parts.forEach(p=>meshes.push(p));});enemies.forEach(e=>{if(e.userData.alive)e.userData.parts.forEach(p=>meshes.push(p));});
  const hit=raycaster.intersectObjects(meshes,false)[0];
- if(hit){
+ if(hit){playImpactSound();if(navigator.vibrate)navigator.vibrate(12);
   const enemy=enemies.find(e=>e.userData.parts.includes(hit.object));
   if(enemy){enemy.userData.hp-=50;if(enemy.userData.hp<=0){enemy.userData.alive=false;enemy.userData.respawnAt=performance.now()+4200;enemy.visible=false;score++;reserve=Math.min(240,reserve+8);updateHud();$("game-score").textContent=String(score).padStart(2,"0");}}
   else{const target=targets.find(t=>t.userData.parts.includes(hit.object));if(target){target.userData.alive=false;target.userData.respawn=performance.now()+2400;target.visible=false;score++;$("game-score").textContent=String(score).padStart(2,"0");}}
