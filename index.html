@@ -51,7 +51,7 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 #boot-enter:active{background:#c8a66a;color:#080b0e}
 #rotate-gate{display:none;position:fixed;z-index:1200;inset:0;background:#070b0f;color:#f2f3f1;align-items:center;justify-content:center;text-align:center;padding:28px}
 .rotate-content{max-width:330px}.rotate-icon{font-size:42px;color:var(--accent);margin-bottom:20px}.rotate-content b{display:block;font:800 28px 'Barlow Condensed';letter-spacing:2px}.rotate-content p{font-size:12px;line-height:1.7;color:#9aa5ac}
-@media (orientation:portrait) and (max-width:900px){#rotate-gate{display:flex}}
+#rotate-gate.active{display:flex}
 @media (pointer:coarse){#game-view{position:fixed;z-index:50;inset:0;width:100vw;height:100dvh;min-height:0;border:0;margin:0;max-height:none}#game-canvas{width:100%;height:100%;}#app.game-active main{width:100%;padding:0;margin:0}#app.game-active .topbar,#app.game-active .footer{display:none}.game-hud{padding:calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 9px) calc(env(safe-area-inset-bottom) + 8px) calc(env(safe-area-inset-left) + 9px)}#mobile-controls{bottom:calc(env(safe-area-inset-bottom) + 12px)}#stick-zone{width:clamp(90px,19vw,132px);height:clamp(90px,19vw,132px)}#stick-knob{left:calc(50% - 24px);top:calc(50% - 24px)}.mobile-actions button{width:clamp(52px,10vw,68px);height:clamp(52px,10vw,68px)}}
 @media (orientation:landscape) and (max-height:500px){#game-view{height:100dvh;min-height:0}.hud-box{padding:6px 9px}.hud-number{font-size:18px}.game-help{top:54px}.mobile-actions button{width:54px;height:54px}#stick-zone{width:100px;height:100px}}
 @media (prefers-reduced-motion:reduce){#raazim-splash{transition:none}}
@@ -121,7 +121,9 @@ let selectedMode = "open_world";
 let introComplete = false;
 const $ = id => document.getElementById(id);
 const views = ["auth-view","character-view","mode-view","lobby-view","game-view"];
-function showView(id){views.forEach(v=>$(v).classList.toggle("hidden",v!==id));$("app").classList.toggle("game-active",id==="game-view");}
+function updateRotateGate(){const gate=$("rotate-gate");const portrait=matchMedia("(orientation: portrait) and (max-width: 900px)").matches;gate.classList.toggle("active",portrait&&$("game-view").classList.contains("hidden")===false);}
+function showView(id){views.forEach(v=>$(v).classList.toggle("hidden",v!==id));$("app").classList.toggle("game-active",id==="game-view");updateRotateGate();}
+window.addEventListener("orientationchange",updateRotateGate);window.addEventListener("resize",updateRotateGate);
 function setError(message){$("auth-error").textContent=message||"";}
 async function requestLandscape(){
  if(!matchMedia("(pointer: coarse)").matches)return;
