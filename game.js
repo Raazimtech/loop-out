@@ -28,41 +28,6 @@ function makeTarget(x,z){
 
 
 function makeEnemy(x,z,index){
- const group=new THREE.Group();group.position.set(x,0,z);
- const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.72,4,8),mat(index%2?0x586a61:0x6d5949));body.position.y=1.05;body.castShadow=true;group.add(body);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10),mat(0xb5a28b));head.position.y=1.78;head.castShadow=true;group.add(head);
- const vest=new THREE.Mesh(new THREE.BoxGeometry(.48,.38,.24),mat(0x303b40));vest.position.set(0,1.15,-.02);group.add(vest);
- const pack=new THREE.Mesh(new THREE.BoxGeometry(.34,.42,.18),mat(0x26312e));pack.position.set(0,1.18,.18);group.add(pack);
- group.userData={isBot:true,alive:true,hp:100,parts:[body,head,vest,pack],spawn:new THREE.Vector3(x,0,z),nextShot:performance.now()+1200+index*180,respawnAt:0,phase:index*1.7};
- scene.add(group);enemies.push(group);return group;
-}
-function updateEnemies(dt){
- const now=performance.now();
- enemies.forEach(bot=>{
-  const data=bot.userData;
-  if(!data.alive){if(now>=data.respawnAt){data.alive=true;data.hp=100;bot.position.copy(data.spawn);bot.visible=true;}return;}
-  const dx=camera.position.x-bot.position.x,dz=camera.position.z-bot.position.z,dist=Math.hypot(dx,dz);
-  if(dist>4.2&&dist<42){
-   const approach=dist>10?1:.12,strafe=Math.sin(now*.0014+data.phase)*.28;
-   const vx=(dx/dist*approach+(-dz/dist)*strafe)*dt*2.05;
-   const vz=(dz/dist*approach+(dx/dist)*strafe)*dt*2.05;
-   const nx=bot.position.x+vx,nz=bot.position.z+vz;
-   if(!blocked(nx,bot.position.z))bot.position.x=nx;
-   if(!blocked(bot.position.x,nz))bot.position.z=nz;
-  }
-  if(dist<27&&now>data.nextShot){
-   data.nextShot=now+1450+Math.random()*850;
-   if(Math.random()<Math.max(.18,.72-dist/48)){
-    playerHealth=Math.max(0,playerHealth-(6+Math.floor(Math.random()*8)));
-    $("game-health").textContent=String(playerHealth).padStart(3,"0");
-    if(playerHealth===0){playerHealth=100;camera.position.set(0,1.7,selectedMode==="small_arena"?20:12);$("game-health").textContent="100";$("game-help").textContent="OPERATOR DOWN · RESPAWN COMPLETE";}
-   }
-  }
-  if(dist>0.01)bot.rotation.y=Math.atan2(dx,dz);
- });
-}
-
-function makeEnemy(x,z,index){
  const drone=index%3===2,group=new THREE.Group();group.position.set(x,0,z);const parts=[];
  if(drone){
   const shell=new THREE.Mesh(new THREE.SphereGeometry(.48,16,12),mat(0x39464e,.45));shell.position.y=2.25;group.add(shell);parts.push(shell);
