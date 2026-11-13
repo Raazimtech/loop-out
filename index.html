@@ -40,14 +40,14 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 
 /* RAAZIM boot sequence and landscape-first play shell */
 #raazim-splash{position:fixed;z-index:1300;inset:0;display:grid;place-items:center;background:#05080b;overflow:hidden;transition:opacity .65s ease,visibility .65s ease}
-#raazim-splash:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#c8a66a12 50%,transparent 65%),radial-gradient(ellipse at 50% 55%,#1d2932 0,transparent 58%)}
+#raazim-splash:before{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#c8a66a12 50%,transparent 65%),radial-gradient(ellipse at 50% 55%,#1d2932 0,transparent 58%)}
 #raazim-splash.leaving{opacity:0;visibility:hidden;pointer-events:none}
 .boot-inner{position:relative;text-align:center;display:grid;justify-items:center;gap:18px;padding:24px}
 .boot-wordmark{font:900 clamp(62px,12vw,118px)/.82 'Barlow Condensed';letter-spacing:.12em;color:#f2f3f1;text-shadow:0 12px 50px #000}
 .boot-wordmark span{color:var(--accent)}
 .boot-rule{width:min(280px,55vw);height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
 .boot-sub{font-size:9px;letter-spacing:.48em;color:#9aa5ac}
-#boot-enter{margin-top:16px;background:transparent;border:1px solid #c8a66a88;color:#e8d5b5;padding:15px 32px;font:700 11px Inter;letter-spacing:3px}
+#boot-enter{position:relative;z-index:2;pointer-events:auto;touch-action:manipulation;-webkit-appearance:none;appearance:none;margin-top:16px;background:transparent;border:1px solid #c8a66a88;color:#e8d5b5;padding:15px 32px;font:700 11px Inter;letter-spacing:3px}
 #boot-enter:active{background:#c8a66a;color:#080b0e}
 #rotate-gate{display:none;position:fixed;z-index:1200;inset:0;background:#070b0f;color:#f2f3f1;align-items:center;justify-content:center;text-align:center;padding:28px}
 .rotate-content{max-width:330px}.rotate-icon{font-size:42px;color:var(--accent);margin-bottom:20px}.rotate-content b{display:block;font:800 28px 'Barlow Condensed';letter-spacing:2px}.rotate-content p{font-size:12px;line-height:1.7;color:#9aa5ac}
@@ -130,20 +130,26 @@ async function requestLandscape(){
  try{if(screen.orientation?.lock)requests.push(screen.orientation.lock("landscape"));}catch(_){}
  await Promise.allSettled(requests);
 }
-function enterBoot(){
+function enterBoot(event){
+ if(introComplete)return;
+ if(event){event.preventDefault();event.stopPropagation();}
  introComplete=true;
- const splash=$("raazim-splash");splash.classList.add("leaving");
+ const splash=$("raazim-splash");
+ if(splash){splash.classList.add("leaving");splash.setAttribute("aria-hidden","true");}
  requestLandscape();
- if(window.__loopOutSession){routeSignedIn();}else{showView("auth-view");}
- setTimeout(()=>splash.remove(),750);
+ if(window.__loopOutSession&&currentUser&&currentProfile){routeSignedIn();}else{showView("auth-view");}
+ if(splash)setTimeout(()=>splash.remove(),750);
 }
+const bootEnter=$("boot-enter");
+bootEnter.addEventListener("pointerup",enterBoot,{capture:true});
+bootEnter.addEventListener("click",enterBoot);
 function routeSignedIn(){
  if(!currentUser||!currentProfile)return;
  window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:currentProfile.character_id};
  $("callsign-display").textContent=currentProfile.username;$("mode-callsign").textContent=currentProfile.username;
  showView("character-view");
 }
-$("boot-enter").addEventListener("click",enterBoot);
+
 function usernameEmail(name){return name.trim().toLowerCase()+"@"+USERNAME_DOMAIN;}
 function setAuthMode(mode){authMode=mode;$("signup-tab").classList.toggle("active",mode==="signup");$("login-tab").classList.toggle("active",mode==="login");$("auth-submit").textContent=mode==="signup"?"CREATE OPERATOR":"SIGN IN";$("password").autocomplete=mode==="signup"?"new-password":"current-password";setError("");}
 $("signup-tab").addEventListener("click",()=>setAuthMode("signup"));
