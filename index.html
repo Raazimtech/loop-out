@@ -202,5 +202,12 @@ $("signout").addEventListener("click",async()=>{if(supabase)await supabase.auth.
 if(!hasSupabaseConfig){$("connection-label").textContent="DATABASE SETUP PENDING";}
 else{$("connection-label").textContent="AUTH SERVICE READY";supabase.auth.getSession().then(async({data})=>{if(data.session){currentUser=data.session.user;try{await loadProfile();window.__loopOutSession=true;if(introComplete)routeSignedIn();}catch(e){console.error("Session restore failed",e);}}});supabase.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){currentUser=null;currentProfile=null;window.__loopOutSession=false;}else if(event==="SIGNED_IN"&&session){currentUser=session.user;window.__loopOutSession=true;}});}
 </script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+  }
+}
+</script>
 <script type="module" src="./game.js"></script>
 </body></html>
