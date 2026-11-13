@@ -128,7 +128,7 @@ main{width:min(1280px,100% - 48px);padding:28px 0 38px}
 </style>
 </head>
 <body>
-<div id="raazim-splash" aria-label="LOOP OUT"><div class="boot-inner"><img class="boot-logo" src="./gamelogo.png" alt="LOOP OUT penguin logo"><div class="boot-rule"></div><div class="boot-sub">RAAZIM</div></div></div>
+<div id="raazim-splash" aria-label="LOOP OUT"><div class="boot-inner"><div class="boot-wordmark">LOOP OUT</div><img class="boot-logo" src="./gamelogo.png" alt="LOOP OUT penguin logo"><div class="boot-rule"></div><div class="boot-sub">RAAZIM</div></div></div>
 <div id="rotate-gate"><div class="rotate-content"><div class="rotate-icon">↻</div><b>ROTATE YOUR DEVICE</b><p>LOOP OUT is designed for landscape play. Turn your phone sideways to enter the operation.</p></div></div>
 <div id="app">
 <header class="topbar"><div class="brand"><img class="brand-logo" src="./gamelogo.png" alt="LOOP OUT penguin logo"><div><div class="brand-name">LOOP OUT</div><div class="brand-sub">TACTICAL OPERATIONS</div></div></div><div class="top-status"><i class="dot"></i><span id="connection-label">SYSTEM STANDBY</span></div></header>
@@ -222,15 +222,19 @@ function routeSignedIn(){
 
 function usernameEmail(name){return name.trim().toLowerCase()+"@"+USERNAME_DOMAIN;}
 async function requestLoopOutAuth(action,nickname,password){
- const response=await fetch(SUPABASE_URL+"/functions/v1/loop-out-auth",{
-  method:"POST",
-  headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY},
-  body:JSON.stringify({action,nickname,password})
+ if(!supabase)throw new Error("Authentication service is unavailable.");
+ const {data,error}=await supabase.functions.invoke("loop-out-auth",{
+  body:{action,nickname,password}
  });
- let payload={};
- try{payload=await response.json();}catch(_){}
- if(!response.ok||payload.error)throw new Error(payload.error||"Authentication service request failed.");
- return payload;
+ if(error){
+  const details=error.context?.body;
+  let message=error.message||"Authentication service request failed.";
+  if(typeof details==="string"){try{message=JSON.parse(details).error||message;}catch(_){}}
+  else if(details&&typeof details==="object")message=details.error||message;
+  throw new Error(message);
+ }
+ if(data?.error)throw new Error(data.error);
+ return data||{};
 }
 function setAuthMode(mode){authMode=mode;$("signup-tab").classList.toggle("active",mode==="signup");$("login-tab").classList.toggle("active",mode==="login");$("auth-submit").textContent=mode==="signup"?"CREATE OPERATOR":"SIGN IN";$("password").autocomplete=mode==="signup"?"new-password":"current-password";setError("");}
 $("signup-tab").addEventListener("click",()=>setAuthMode("signup"));
