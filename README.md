@@ -44,4 +44,4 @@ GitHub Pages deploys from `main`. The root `index.html`, `game.js`, assets, and 
 
 ## Validation
 
-The `LOOP OUT validation` GitHub Actions workflow checks the game module syntax, inline application JavaScript syntax and required game entrypoints on pushes to `main` and pull requests targeting `main`.
+The `LOOP OUT validation` GitHub Actions workflow checks the game module syntax, inline application JavaScript syntax, required game entrypoints, and a headless Chromium startup smoke test on desktop and mobile. The browser test loads the real Three.js module and verifies that the RAAZIM entry button reveals the authentication screen.
