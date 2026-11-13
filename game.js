@@ -31,15 +31,28 @@ function createRemotePlayer(playerId,data={}){
  const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.72,4,8),mat(0x526c62));body.position.y=1.05;body.castShadow=true;group.add(body);
  const head=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10),mat(0xb5a28b));head.position.y=1.78;head.castShadow=true;group.add(head);
  const vest=new THREE.Mesh(new THREE.BoxGeometry(.48,.38,.24),mat(0x303b40));vest.position.set(0,1.15,-.02);group.add(vest);
- group.userData={playerId,username:String(data.username||"OPERATOR").slice(0,16),targetPosition:new THREE.Vector3(0,0,0),targetYaw:0};
+ const nameCanvas=document.createElement("canvas");nameCanvas.width=256;nameCanvas.height=64;
+ const nameContext=nameCanvas.getContext("2d");
+ const nameTexture=new THREE.CanvasTexture(nameCanvas);nameTexture.colorSpace=THREE.SRGBColorSpace;
+ const nameSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:nameTexture,transparent:true,depthWrite:false}));
+ nameSprite.position.y=2.35;nameSprite.scale.set(1.8,.45,1);group.add(nameSprite);
+ group.userData={playerId,username:"",nameContext,nameTexture,targetPosition:new THREE.Vector3(0,0,0),targetYaw:0};
+ updateRemoteName(group,String(data.username||"OPERATOR"));
  scene.add(group);remotePlayers.set(playerId,group);return group;
+}
+function updateRemoteName(player,name){
+ const safeName=String(name||"OPERATOR").slice(0,16);if(player.userData.username===safeName)return;
+ player.userData.username=safeName;const ctx=player.userData.nameContext;
+ ctx.clearRect(0,0,256,64);ctx.fillStyle="rgba(7,12,16,.82)";ctx.fillRect(8,8,240,48);
+ ctx.font="bold 22px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillStyle="#f0f3f5";ctx.fillText(safeName,128,33,220);
+ player.userData.nameTexture.needsUpdate=true;
 }
 function applyRemoteState(data){
  const playerId=data?.player_id||data?.user_id;if(!playerId||playerId===window.loopOutPlayer?.id||!scene)return;
  const x=Number(data.x),z=Number(data.z),angle=Number(data.yaw);
  if(!Number.isFinite(x)||!Number.isFinite(z)||!Number.isFinite(angle)||Math.abs(x)>60||Math.abs(z)>60)return;
  let player=remotePlayers.get(playerId);if(!player)player=createRemotePlayer(playerId,data);
- player.userData.username=String(data.username||player.userData.username).slice(0,16);
+ updateRemoteName(player,data.username||player.userData.username);
  player.userData.targetPosition.set(x,0,z);player.userData.targetYaw=angle;
 }
 function syncRemotePlayers(){
