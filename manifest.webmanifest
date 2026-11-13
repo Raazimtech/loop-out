@@ -2,7 +2,7 @@
   "id": "./",
   "name": "LOOP OUT",
   "short_name": "LOOP OUT",
-  "description": "LOOP OUT tactical first-person shooter by RAAZIM.",
+  "description": "LOOP OUT offline single-player survival against zombies and hunter drones by RAAZIM.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
