@@ -22,7 +22,8 @@ function makeTarget(x,z){
  scene.add(group);targets.push(group);return group;
 }
 function buildWorld(mode){
- scene=new THREE.Scene();scene.background=new THREE.Color(0x9aa5a3);scene.fog=new THREE.Fog(0x9aa5a3,35,125);
+ const arena=mode==="small_arena";obstacles=[];targets=[];if(controls)controls.disconnect();
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x9aa5a3);scene.fog=new THREE.Fog(0x9aa5a3,35,arena?65:125);
  camera=new THREE.PerspectiveCamera(76,canvas.clientWidth/canvas.clientHeight,.1,250);camera.position.set(0,1.7,12);camera.rotation.order="YXZ";
  if(!renderer){renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:"high-performance"});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;}renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
  const hemi=new THREE.HemisphereLight(0xdce6e5,0x303a32,2.1);scene.add(hemi);
