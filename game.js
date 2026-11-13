@@ -28,7 +28,7 @@ function makeTarget(x,z){
 
 
 function makeEnemy(x,z,index){
- const drone=index%3===2,group=new THREE.Group();group.position.set(x,0,z);const parts=[];
+ const drone=index%6===5,group=new THREE.Group();group.position.set(x,0,z);const parts=[];
  if(drone){
   const shell=new THREE.Mesh(new THREE.SphereGeometry(.48,16,12),mat(0x39464e,.45));shell.position.y=0;group.add(shell);parts.push(shell);
   const core=new THREE.Mesh(new THREE.SphereGeometry(.2,12,10),new THREE.MeshStandardMaterial({color:0xe24c40,emissive:0x861b13,emissiveIntensity:1.2}));core.position.y=0;group.add(core);parts.push(core);
@@ -53,7 +53,7 @@ function updateEnemies(dt){
   if(!d.alive){if(now>=d.respawnAt){d.alive=true;d.hp=100;enemy.position.copy(d.spawn);enemy.visible=true;d.nextAttack=now+900;}return;}
   const dx=camera.position.x-enemy.position.x,dz=camera.position.z-enemy.position.z,dist=Math.hypot(dx,dz);
   if(d.kind==="zombie"){
-   if(dist>1.35&&dist<155){
+   if(dist>1.35&&dist<260){
     const baseAngle=Math.atan2(dz,dx),speed=dist>18?3.45:2.25;
     const separation=new THREE.Vector2();
     enemies.forEach(other=>{if(other===enemy||!other.userData.alive||other.userData.kind!=="zombie")return;const ox=enemy.position.x-other.position.x,oz=enemy.position.z-other.position.z,od=Math.hypot(ox,oz);if(od>0&&od<2.5){separation.x+=ox/od*(2.5-od);separation.y+=oz/od*(2.5-od);}});
@@ -183,7 +183,7 @@ function buildWorld(mode){
  if(!renderer){renderer=new THREE.WebGLRenderer({canvas,antialias:!matchMedia("(pointer: coarse)").matches,powerPreference:"high-performance",stencil:false,depth:true});renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia("(pointer: coarse)").matches?1.25:1.6));renderer.shadowMap.enabled=!matchMedia("(pointer: coarse)").matches;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;}renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
  const hemi=new THREE.HemisphereLight(0xe5f0f2,0x594b35,arena?2.1:2.5);scene.add(hemi);
  const sun=new THREE.DirectionalLight(0xffd59b,arena?2.2:3.35);sun.position.set(-110,145,90);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-150;sun.shadow.camera.right=150;sun.shadow.camera.top=150;sun.shadow.camera.bottom=-150;sun.shadow.bias=-.00018;scene.add(sun);
- if(!arena){const sunDisc=new THREE.Mesh(new THREE.SphereGeometry(11,20,16),new THREE.MeshBasicMaterial({color:0xffd99c}));sunDisc.position.set(-260,165,-310);scene.add(sunDisc);}
+ if(!arena){const sunDisc=new THREE.Mesh(new THREE.SphereGeometry(11,20,16),new THREE.MeshBasicMaterial({color:0xffd99c}));sunDisc.position.set(-180,150,-240);scene.add(sunDisc);}
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(arena?64:1200,arena?64:1200),mat(arena?0x59645b:0x756e58));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
  const grid=new THREE.GridHelper(arena?64:180,arena?32:90,0x839083,0x667568);grid.position.y=.012;grid.material.transparent=true;grid.material.opacity=.12;scene.add(grid);
  const concrete=mat(0x777e7c),dark=mat(0x343d40),sand=mat(0x9b8b6d),metal=mat(0x4a5559),green=mat(0x46564a);
@@ -238,6 +238,7 @@ function move(dt){
  const nx=camera.position.x+moveVelocity.x*dt,nz=camera.position.z+moveVelocity.z*dt;
  if(!blocked(nx,nz)){camera.position.x=nx;camera.position.z=nz;}
  else{if(!blocked(nx,camera.position.z))camera.position.x=nx;if(!blocked(camera.position.x,nz))camera.position.z=nz;moveVelocity.multiplyScalar(.45);}
+ camera.position.y=THREE.MathUtils.lerp(camera.position.y,sliding?.96:1.7,Math.min(1,dt*14));
  if(selectedMode==="small_arena"){camera.position.x=THREE.MathUtils.clamp(camera.position.x,-22,22);camera.position.z=THREE.MathUtils.clamp(camera.position.z,-22,22);}
 }
 function shoot(){
