@@ -1,7 +1,7 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 import { PointerLockControls } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/PointerLockControls.js";
 
-let renderer, scene, camera, controls, animationId, running=false, selectedMode="open_world", worldMode=null, resizeBound=false;
+let renderer, scene, camera, controls, animationId, running=false, selectedMode="open_world", worldMode=null, resizeBound=false, clickBound=false;
 let targets=[], obstacles=[], keys={}, ammo=30, reserve=120, score=0, reloading=false, lastShot=0;
 let yaw=0,pitch=0,stick={x:0,y:0},touchLook=null;
 const raycaster=new THREE.Raycaster();
@@ -59,7 +59,7 @@ function buildWorld(mode){
  controls=new PointerLockControls(camera,renderer.domElement);
  controls.addEventListener("lock",()=>{$("game-help").style.display="none";});
  controls.addEventListener("unlock",()=>{if(running)$("game-help").style.display="block";});
- renderer.domElement.addEventListener("click",()=>{if(!matchMedia("(pointer: coarse)").matches&&!controls.isLocked)controls.lock();});
+ if(!clickBound){renderer.domElement.addEventListener("click",()=>{if(!matchMedia("(pointer: coarse)").matches&&!controls.isLocked)controls.lock();});clickBound=true;}
  if(!resizeBound){window.addEventListener("resize",resize);resizeBound=true;}
 }
 function resize(){if(!renderer||!camera)return;const w=canvas.clientWidth,h=canvas.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);}
@@ -69,8 +69,9 @@ function move(dt){
  const side=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+stick.x;
  const v=new THREE.Vector3(side,0,-forward);if(v.lengthSq()>1)v.normalize();v.applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
  const speed=keys.ShiftLeft?8.2:5.4;const nx=camera.position.x+v.x*speed*dt,nz=camera.position.z+v.z*speed*dt;
- if(!blocked(nx,camera.position.z))camera.position.x=THREE.MathUtils.clamp(nx,-43,43);
- if(!blocked(camera.position.x,nz))camera.position.z=THREE.MathUtils.clamp(nz,-50,50);
+ const edge=selectedMode==="small_arena"?22:43;
+ if(!blocked(nx,camera.position.z))camera.position.x=THREE.MathUtils.clamp(nx,-edge,edge);
+ if(!blocked(camera.position.x,nz))camera.position.z=THREE.MathUtils.clamp(nz,-edge,edge);
 }
 function shoot(){
  if(!running||reloading||ammo<=0||performance.now()-lastShot<145)return;
