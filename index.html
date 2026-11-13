@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#090d12">
-<meta name="description" content="BLACKOUT — a browser-based tactical multiplayer shooter.">
-<title>BLACKOUT | Tactical Operations</title>
+<meta name="description" content="LOOP OUT — a browser-based tactical multiplayer shooter.">
+<title>LOOP OUT | Tactical Operations</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -41,9 +41,9 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 </head>
 <body>
 <div id="app">
-<header class="topbar"><div class="brand"><div class="brand-mark">B</div><div><div class="brand-name">BLACKOUT</div><div class="brand-sub">TACTICAL OPERATIONS</div></div></div><div class="top-status"><i class="dot"></i><span id="connection-label">SYSTEM STANDBY</span></div></header>
+<header class="topbar"><div class="brand"><div class="brand-mark">L</div><div><div class="brand-name">LOOP OUT</div><div class="brand-sub">TACTICAL OPERATIONS</div></div></div><div class="top-status"><i class="dot"></i><span id="connection-label">SYSTEM STANDBY</span></div></header>
 <main>
-<section class="hero"><div><div class="eyebrow">MULTIPLAYER COMBAT SIMULATION / 001</div><h1>ENTER THE<br><span>OPERATION.</span></h1><p>A tactical first-person world built around positioning, awareness and teamwork. Create your callsign, select your operator and deploy when the battlefield is ready.</p></div><div class="hero-art"><div class="art-code">SECTOR 07 / CLASSIFIED</div><div class="art-label">FIELD OPERATIONS // BLACKOUT PROTOCOL</div></div></section>
+<section class="hero"><div><div class="eyebrow">MULTIPLAYER COMBAT SIMULATION / 001</div><h1>ENTER THE<br><span>OPERATION.</span></h1><p>A tactical first-person world built around positioning, awareness and teamwork. Create your callsign, select your operator and deploy when the battlefield is ready.</p></div><div class="hero-art"><div class="art-code">SECTOR 07 / CLASSIFIED</div><div class="art-label">FIELD OPERATIONS // LOOP OUT PROTOCOL</div></div></section>
 <section id="auth-view" class="auth-layout">
 <div class="panel briefing"><div class="eyebrow">MISSION BRIEFING</div><h2>NO TWO OPERATIONS ARE THE SAME.</h2><p>Build your operator identity now. The first release establishes player accounts, character identity and the two deployment queues. Real-time shared worlds and combat are being added in later development stages.</p><div class="feature-list"><div class="feature"><b>OPEN WORLD</b><span>Large-scale shared exploration</span></div><div class="feature"><b>SMALL ARENA</b><span>Compact close-quarters combat</span></div><div class="feature"><b>PLAYER IDENTITY</b><span>Your callsign and operator persist</span></div><div class="feature"><b>WEB DEPLOYMENT</b><span>Desktop and mobile browser support</span></div></div></div>
 <div class="panel auth"><h2>OPERATOR ACCESS</h2><p class="sub">Create a callsign or return to your account.</p><div class="tabs"><button class="tab active" id="signup-tab" type="button">CREATE ACCOUNT</button><button class="tab" id="login-tab" type="button">SIGN IN</button></div><form id="auth-form"><label class="field"><span>CALLSIGN / NICKNAME</span><input id="nickname" autocomplete="username" minlength="3" maxlength="16" pattern="[A-Za-z0-9_]+" placeholder="e.g. Ghost_07" required></label><label class="field"><span>PASSWORD</span><input id="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required></label><button class="primary" id="auth-submit" type="submit">CREATE OPERATOR</button><div class="error" id="auth-error" role="alert"></div></form><p class="fineprint">Use a unique password. This game uses Supabase authentication. Nicknames are public in-game identities; passwords are never stored in the game database as plain text.</p></div>
@@ -59,13 +59,13 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 </div><div class="actions"><button class="secondary" id="back-character">BACK</button><button class="primary" id="deploy">ENTER DEPLOYMENT</button></div></section>
 <section id="lobby-view" class="hidden panel lobby"><div class="eyebrow">03 / DEPLOYMENT QUEUE</div><h2 class="section-title" id="lobby-title">OPEN WORLD</h2><div class="lobby-box"><h3>FOUNDATION BUILD IN PROGRESS</h3><p>Your account and operator identity are saved. This stage prepares the deployment flow. Shared 3D maps, live player visibility, bots and weapons are not enabled yet; those are separate implementation stages, not fake buttons.</p><div class="status-line"><i class="dot"></i><span id="lobby-status">Operator identity confirmed</span></div></div><div class="actions"><button class="secondary" id="back-modes">CHANGE MODE</button><button class="primary" id="signout">SIGN OUT</button></div></section>
 
-<section id="game-view" class="hidden" aria-label="BLACKOUT training range">
+<section id="game-view" class="hidden" aria-label="LOOP OUT training range">
  <canvas id="game-canvas"></canvas>
  <div class="game-help" id="game-help">CLICK THE FIELD TO LOCK MOUSE · WASD MOVE · MOUSE AIM · CLICK FIRE · R RELOAD</div>
  <div id="crosshair"></div>
  <div class="game-hud">
   <div class="hud-top">
-   <div class="hud-box"><small>BLACKOUT // TRAINING SECTOR</small><span id="game-mode-label">OPEN WORLD</span></div>
+   <div class="hud-box"><small>LOOP OUT // TRAINING SECTOR</small><span id="game-mode-label">OPEN WORLD</span></div>
    <div class="hud-box"><small>OPERATOR</small><span id="game-player-label">PLAYER</span></div>
    <button id="game-exit" type="button">EXIT RANGE</button>
   </div>
@@ -80,7 +80,7 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
   <div class="mobile-actions"><button id="reload-touch" type="button">RELOAD</button><button class="fire" id="fire-touch" type="button">FIRE</button></div>
  </div>
 </section>
-</main><footer class="footer"><span>BLACKOUT // TACTICAL OPERATIONS</span><span>STAGE 02 — 3D TRAINING RANGE</span></footer>
+</main><footer class="footer"><span>LOOP OUT // TACTICAL OPERATIONS</span><span>STAGE 02 — 3D TRAINING RANGE</span></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
