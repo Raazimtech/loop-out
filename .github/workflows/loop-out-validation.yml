@@ -32,6 +32,21 @@ jobs:
           grep -q 'const topic="loopout:"+selectedMode' game.js
           grep -q 'blackout_player_profiles' index.html
           grep -q 'RAA<span>Z</span>IM' index.html
+      - name: Verify HTML element references
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html = Path("index.html").read_text()
+          game = Path("game.js").read_text()
+          ids = re.findall(r'\\bid=["\\']([^"\\']+)["\\']', html)
+          duplicates = sorted({item for item in ids if ids.count(item) > 1})
+          refs = re.findall(r'\\$\\(["\\']([^"\\']+)["\\']\\)', html + "\\n" + game)
+          missing = sorted(set(refs) - set(ids))
+          if duplicates or missing:
+              raise SystemExit(f"DOM contract failed; duplicate IDs={duplicates}; missing IDs={missing}")
+          print(f"DOM contract OK: {len(ids)} unique IDs, {len(set(refs))} referenced elements")
+          PY
       - name: Browser smoke test for desktop and mobile entry
         run: |
           npm install --no-save playwright
