@@ -5,7 +5,7 @@ const browser = await chromium.launch({ headless: true });
 try {
   for (const device of [
     { name: "desktop", viewport: { width: 1440, height: 900 }, isMobile: false, hasTouch: false },
-    { name: "mobile", viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
+    { name: "mobile", viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true },
   ]) {
     const context = await browser.newContext(device);
     const page = await context.newPage();
@@ -30,17 +30,15 @@ try {
     }
     assert.deepEqual(pageErrors, [], `${device.name}: browser runtime error`);
 
-    const enter = page.locator("#boot-enter");
-    await enter.waitFor({ state: "visible" });
-    if (device.hasTouch) await enter.tap();
-    else await enter.click();
-
     await page.waitForFunction(() =>
       document.querySelector("#raazim-splash")?.classList.contains("leaving") &&
       !document.querySelector("#auth-view")?.classList.contains("hidden")
-    );
-    assert.equal(await page.locator("#auth-view").isVisible(), true, `${device.name}: auth screen did not appear`);
-    assert.equal(await page.locator("#rotate-gate").isVisible(), false, `${device.name}: rotate gate blocked account entry`);
+    , null, { timeout: 10000 });
+    assert.equal(await page.locator("#auth-view").isVisible(), true, `${device.name}: automatic splash did not reveal account screen`);
+    assert.equal(await page.locator("#raazim-splash").locator(".boot-wordmark").textContent(), "LOOP OUT");
+    assert.equal(await page.locator("#raazim-splash").locator(".boot-sub").textContent(), "RAZIM");
+    assert.equal(await page.locator("#rotate-gate").isVisible(), false, `${device.name}: rotate gate blocked landscape app`);
+    assert.equal(await page.locator("#boot-enter").count(), 0, "tap-to-enter control must not exist");
     await context.close();
     console.log(`PASS: ${device.name} startup entry`);
   }
