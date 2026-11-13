@@ -5,7 +5,8 @@ import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/
 let renderer, scene, camera, controls, animationId, running=false, selectedMode="open_world", worldMode=null, resizeBound=false, clickBound=false;
 let targets=[],enemies=[],obstacles=[],keys={},ammo=30,reserve=120,score=0,playerHealth=100,reloading=false,lastShot=0,weaponModel=null,muzzleFlash=null;
 let yaw=0,pitch=0,stick={x:0,y:0},touchLook=null;
-let weaponRecoil=0,audioContext=null,slideUntil=0,slideDirection=0,lastSlide=0,damageGraceUntil=0,lastDamageAt=0;\nconst moveVelocity=new THREE.Vector3(),slideVector=new THREE.Vector3();
+let weaponRecoil=0,audioContext=null,slideUntil=0,slideDirection=0,lastSlide=0,damageGraceUntil=0,lastDamageAt=0;
+const moveVelocity=new THREE.Vector3(),slideVector=new THREE.Vector3();
 const raycaster=new THREE.Raycaster();
 const clock=new THREE.Clock();
 const assetLoader=new GLTFLoader();
