@@ -1,4 +1,4 @@
-const CACHE_NAME = "loop-out-offline-v2";
+const CACHE_NAME = "loop-out-offline-v3";
 const APP_SHELL = [
   "./", "./index.html", "./game.js", "./manifest.webmanifest", "./gamelogo.png",
   "./assets/blackout/building-type-a.glb", "./assets/blackout/building-type-b.glb",
