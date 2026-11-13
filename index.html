@@ -138,6 +138,17 @@ body{background:#070b0f!important;background-image:none!important;overflow:hidde
 .name-box input:focus{border-color:var(--accent)}
 #game-exit{pointer-events:auto;min-height:38px;padding:0 13px;background:#141d25;border:1px solid #c8a66a;color:#fff;font-size:10px;letter-spacing:1px}
 #rotate-gate.active{z-index:1400}
+/* Combat feedback and clearer survival HUD */
+.health-box{min-width:112px}.health-box .hud-number{display:block;line-height:1.05}#health-track{height:4px;width:100%;margin-top:7px;background:#ffffff25;overflow:hidden}#health-fill{display:block;height:100%;width:100%;background:#8fae91;transition:width .18s ease,background .18s ease}#damage-flash{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 38%,#a71919a8 100%)}#damage-flash.hit{animation:damagePulse .34s ease-out}@keyframes damagePulse{0%{opacity:.8}100%{opacity:0}}
+#mobile-controls{display:none;grid-template-columns:minmax(86px,1fr) minmax(90px,1fr) minmax(116px,1fr);gap:clamp(8px,2vw,22px);align-items:end;padding:0 clamp(12px,3vw,28px);pointer-events:none}
+.control-slot{display:flex;flex-direction:column;align-items:center;justify-content:end;gap:6px;min-width:0;pointer-events:none}.control-slot>small{font:700 8px Inter,sans-serif;letter-spacing:1.4px;color:#d6dde1b5;text-shadow:0 1px 4px #000}.move-slot{align-items:flex-start}.action-slot{align-items:flex-end}
+#stick-zone{width:clamp(88px,17vw,118px);height:clamp(88px,17vw,118px);flex:none;border:1px solid #ffffff65;border-radius:50%;background:#0a10177a;pointer-events:auto;touch-action:none;position:relative}
+#stick-knob{left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#c8a66ab8;border:1px solid #f2d6a5}
+#swipe-zone{width:100%;max-width:138px;height:66px;border:1px solid #ffffff55;border-radius:12px;background:#0a1017a8;color:#f0e1c5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;pointer-events:auto;touch-action:none;user-select:none}
+#swipe-zone span{font:700 8px Inter,sans-serif;letter-spacing:1px;white-space:nowrap}#swipe-zone i{font:800 19px Arial,sans-serif;font-style:normal;color:#d8b778;line-height:1}
+.mobile-actions{display:flex;gap:clamp(7px,1.5vw,13px);align-items:center;pointer-events:auto}.mobile-actions button{width:clamp(48px,9vw,62px);height:clamp(48px,9vw,62px);border-radius:50%;background:#0a1017ed;border:1px solid #ffffff80;color:white;font:700 9px Inter,sans-serif;touch-action:none;flex:none}.mobile-actions button.fire{background:#a83d34e8;border-color:#f18a7f}
+@media(pointer:coarse),(max-width:800px){#mobile-controls{display:grid;bottom:calc(env(safe-area-inset-bottom) + 12px)}.game-help{top:76px;font-size:9px}.hud-box{padding:8px 10px}.game-hud{padding:10px}.hud-top{flex-wrap:wrap;gap:6px}#game-view{min-height:0;height:100dvh}}
+@media (orientation:landscape) and (max-height:500px){#mobile-controls{bottom:calc(env(safe-area-inset-bottom) + 8px);grid-template-columns:1fr 1fr 1fr}.control-slot{gap:3px}#stick-zone{width:90px;height:90px}.mobile-actions button{width:50px;height:50px}#swipe-zone{height:54px}.game-help{top:58px}}
 </style>
 </head>
 <body>
@@ -150,6 +161,7 @@ body{background:#070b0f!important;background-image:none!important;overflow:hidde
  <canvas id="game-canvas"></canvas>
  <div class="game-help" id="game-help">CLICK THE FIELD TO LOCK MOUSE · WASD MOVE · MOUSE AIM · CLICK FIRE · R RELOAD</div>
  <div id="crosshair"></div>
+ <div id="damage-flash" aria-hidden="true"></div>
  <div class="game-hud">
   <div class="hud-top">
    <div class="hud-box"><small>LOOP OUT // SURVIVAL</small><span id="game-mode-label">OPEN WORLD</span></div>
@@ -158,14 +170,15 @@ body{background:#070b0f!important;background-image:none!important;overflow:hidde
    <button id="game-exit" type="button">RESTART</button>
   </div>
   <div class="hud-bottom">
-   <div class="hud-box"><small>HEALTH</small><span class="hud-number" id="game-health">100</span></div>
+   <div class="hud-box health-box"><small>HEALTH</small><span class="hud-number" id="game-health">100</span><div id="health-track"><i id="health-fill"></i></div></div>
    <div class="hud-box"><small>ELIMINATIONS</small><span class="hud-number" id="game-score">00</span></div>
    <div class="hud-box"><small>AMMUNITION</small><span class="hud-number" id="game-ammo">30 / 120</span></div>
   </div>
  </div>
  <div id="mobile-controls">
-  <div id="stick-zone"><div id="stick-knob"></div></div>
-  <div class="mobile-actions"><button id="reload-touch" type="button">RELOAD</button><button class="fire" id="fire-touch" type="button">FIRE</button></div>
+  <div class="control-slot move-slot"><div id="stick-zone"><div id="stick-knob"></div></div><small>MOVE</small></div>
+  <div class="control-slot slide-slot"><div id="swipe-zone" aria-label="Swipe left or right to slide"><span>SWIPE TO SLIDE</span><i>← &nbsp; →</i></div></div>
+  <div class="control-slot action-slot"><div class="mobile-actions"><button id="reload-touch" type="button">RELOAD</button><button class="fire" id="fire-touch" type="button">FIRE</button></div></div>
  </div>
 </section>
 </main><footer class="footer"><span>LOOP OUT // TACTICAL OPERATIONS</span><span>FIELD OPERATIONS // BROWSER EDITION</span></footer>
