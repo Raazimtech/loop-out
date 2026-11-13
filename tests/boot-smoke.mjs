@@ -7,7 +7,7 @@ try {
     { name: "desktop", viewport: { width: 1440, height: 900 }, isMobile: false, hasTouch: false },
     { name: "mobile", viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true },
   ]) {
-    const context = await browser.newContext(device, { serviceWorkers: "allow" });
+    const context = await browser.newContext({ ...device, serviceWorkers: "allow" });
     const page = await context.newPage();
     const pageErrors = [];
     const supabaseRequests = [];
