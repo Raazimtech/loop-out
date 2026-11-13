@@ -16,12 +16,11 @@ try {
       contentType: "application/javascript",
       body: "window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),signOut:async()=>({})},from:()=>({select:()=>({eq:()=>({single:async()=>({data:null,error:{message:'not used'}})})})})})};",
     }));
-    await page.route("**/game.js", route => route.fulfill({
-      contentType: "application/javascript",
-      body: "window.startLoopOutGame=()=>{};window.stopLoopOutGame=()=>{};",
-    }));
-
+    const pageErrors = [];
+    page.on("pageerror", error => pageErrors.push(error.message));
     await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => typeof window.startLoopOutGame === "function", { timeout: 30000 });
+    assert.deepEqual(pageErrors, [], `${device.name}: browser runtime error`);
     const enter = page.locator("#boot-enter");
     await enter.waitFor({ state: "visible" });
     if (device.hasTouch) await enter.tap();
