@@ -187,7 +187,8 @@ function startSoloGame(){
  $("game-view").classList.remove("hidden");
  $("connection-label").textContent="OFFLINE SURVIVAL";
  $("game-player-label").value=localStorage.getItem("loopout-player-name")||"SURVIVOR";
- window.__loopOutStartRequested=true;\n if(window.startLoopOutGame)window.startLoopOutGame(selectedMode);
+ window.__loopOutStartRequested=true;
+ if(window.startLoopOutGame)window.startLoopOutGame(selectedMode);
  setTimeout(()=>$("raazim-splash")?.remove(),1000);
 }
 $("game-player-label").addEventListener("input",e=>{
