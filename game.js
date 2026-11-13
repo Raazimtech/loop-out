@@ -234,4 +234,5 @@ function stopGame(){
  running=false;if(animationId)cancelAnimationFrame(animationId);if(controls?.isLocked)controls.unlock();
 }
 window.stopLoopOutGame=stopGame;
-bindControls();\nif(window.__loopOutStartRequested)window.startLoopOutGame("open_world");
+bindControls();
+if(window.__loopOutStartRequested)window.startLoopOutGame("open_world");
