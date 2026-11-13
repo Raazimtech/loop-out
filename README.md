@@ -1,35 +1,32 @@
 # BLACKOUT — Tactical Operations
 
-A browser-based first-person multiplayer shooter, built in stages with plain HTML/CSS/JavaScript and Three.js planned for the 3D runtime.
+A browser-based first-person shooter built in stages with plain HTML/CSS/JavaScript and Three.js.
 
-## Current stage: 1 — Player foundation
+## Current stage: 2 — 3D gameplay foundation
 
-Implemented in this branch:
-- New BLACKOUT game interface replacing the old customer-support dashboard.
-- Callsign/password account screens (Supabase-backed once the dedicated project is connected).
-- Operator selection: Recon, Assault, Support.
-- Exactly two deployment modes: Open World and Small Arena.
-- Responsive desktop/mobile layout.
-- Clear deployment placeholder rather than fake gameplay controls.
+Implemented:
+- BLACKOUT identity, callsign/password account UI, operator selection and exactly two modes.
+- BLACKOUT-only player profile table and signup trigger, isolated with unique `blackout_` names in the already-authorized Supabase project.
+- Three.js first-person training range with mouse look, WASD movement, collision boundaries, weapon firing, raycast hit detection, target dummies, ammo/reload and score.
+- Mobile touch movement/look/fire/reload controls.
+- Responsive desktop and mobile HUD.
 
 Not implemented yet:
-- 3D movement, weapons, maps, bots, multiplayer rooms, live player synchronization.
-- Supabase project connection and live account testing.
+- Online multiplayer, synchronized players, matchmaking/rooms, server-authoritative combat, AI opponents, advanced weapons, missions or a production-scale open world.
+- Real match separation between Open World and Small Arena; both currently load the training-range prototype, with the selected mode shown in the HUD.
 
-## Supabase isolation
+## Data isolation and authentication
 
-**Do not connect this game to any existing Supabase project.** Create a separate project named `blackout-game` and run `supabase/schema.sql` in that project's SQL Editor.
+BLACKOUT uses only `public.blackout_player_profiles` and functions/triggers prefixed `blackout_`. Its auth trigger only processes accounts tagged with `app='blackout'`; unrelated app signups do not create BLACKOUT profiles. No existing app tables are changed.
 
-Then:
-1. In Supabase Authentication settings, disable email confirmations for this prototype. Nickname login uses a synthetic internal email address (`<nickname>@players.blackout.invalid`) because Supabase password authentication requires an email or phone identifier. Players never enter an email.
-2. Add the dedicated project's Project URL and publishable key to the two constants at the top of the inline script in `index.html`.
-3. Keep service-role keys out of browser code. Only the publishable/anon key belongs in this static frontend.
-4. Test registration, duplicate nicknames, sign-in and profile persistence before starting Stage 2.
+The browser uses the project's publishable key only. Never put a service-role key in frontend code. Callsigns are mapped to an internal synthetic email for Supabase password authentication; players never enter an email. Email confirmation must be disabled in the project's Auth settings for this prototype. Test that setting before treating signup as production-ready.
 
-The database schema is scoped exclusively to this game. No existing app tables, credentials or data are reused.
+## Run
+
+Open the repository through GitHub Pages or a local static server. The 3D runtime loads Three.js from jsDelivr. Use WASD + mouse + click to fire on desktop. On touch devices, use the left virtual stick and on-screen fire/reload controls.
 
 ## Development branch
 
 `game-stage-1-foundation`
 
-The default branch is intentionally untouched until the staged build is reviewed and ready to merge.
+The default branch remains untouched until the staged build is reviewed.
