@@ -1,502 +1,198 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raazim Tech | Support Command Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-deep: #020617;
-            --bg-surface: #0f172a;
-            --bg-accent: #1e293b;
-            --primary: #3b82f6;
-            --primary-glow: rgba(59, 130, 246, 0.5);
-            --success: #10b981;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --border: rgba(255, 255, 255, 0.1);
-        }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#090d12">
+<meta name="description" content="LOOP OUT — a browser-based tactical multiplayer shooter.">
+<title>LOOP OUT | Tactical Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#090d12;--panel:#111820;--panel2:#17212b;--line:#2b3945;--muted:#8997a4;--text:#e9eef2;--accent:#c8a66a;--green:#8fae91;--red:#d16b62}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}body{min-height:100svh;background:radial-gradient(ellipse at 75% 15%,#26313a 0,transparent 36%),linear-gradient(130deg,#0b1015,#0a0e12 60%,#131a20)}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:wait}.hidden{display:none!important}
+#app{min-height:100svh;display:flex;flex-direction:column}.topbar{height:72px;border-bottom:1px solid #ffffff16;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,5vw,70px);background:#080c10c9;backdrop-filter:blur(14px)}.brand{display:flex;align-items:center;gap:13px}.brand-mark{width:34px;height:34px;border:1px solid var(--accent);display:grid;place-items:center;color:var(--accent);font:900 21px 'Barlow Condensed';transform:skew(-8deg)}.brand-name{font:800 24px 'Barlow Condensed';letter-spacing:3px}.brand-sub{font-size:9px;letter-spacing:2.4px;color:var(--muted);margin-top:2px}.top-status{font-size:10px;letter-spacing:1.8px;color:var(--green);display:flex;gap:9px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px #8fae91}
+main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebrow{color:var(--accent);font-size:10px;letter-spacing:3px;font-weight:700}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center;margin-bottom:36px}.hero h1{font:900 clamp(54px,8vw,100px)/.86 'Barlow Condensed';letter-spacing:-1px;margin:18px 0}.hero h1 span{color:var(--accent)}.hero p{max-width:480px;color:#aab5bd;font-size:14px;line-height:1.8}.hero-art{height:265px;position:relative;overflow:hidden;border:1px solid #ffffff18;background:linear-gradient(90deg,#0d151c22,#0d151c88),url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=85') center 45%/cover}.hero-art:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#090d12 0%,transparent 65%),linear-gradient(90deg,#090d12 0%,transparent 75%)}.art-label{position:absolute;z-index:1;bottom:18px;left:20px;font:700 12px 'Barlow Condensed';letter-spacing:2px}.art-code{position:absolute;z-index:1;right:18px;top:18px;color:#ffffff9c;font:600 10px monospace;letter-spacing:2px}
+.panel{background:linear-gradient(145deg,#141d26f2,#0f161df2);border:1px solid var(--line);box-shadow:0 22px 70px #0005}.auth-layout{display:grid;grid-template-columns:1fr 390px;gap:28px;align-items:stretch}.briefing{padding:30px}.briefing h2,.section-title{font:800 28px 'Barlow Condensed';letter-spacing:1px;margin:8px 0 16px}.briefing p{color:var(--muted);font-size:13px;line-height:1.8;max-width:590px}.feature-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px}.feature{border-top:1px solid var(--line);padding:14px 0}.feature b{display:block;font:700 15px 'Barlow Condensed';letter-spacing:1px;margin-bottom:5px}.feature span{color:var(--muted);font-size:11px}.auth{padding:28px}.auth h2{font:800 25px 'Barlow Condensed';letter-spacing:1px;margin:0 0 6px}.sub{font-size:12px;color:var(--muted);margin:0 0 24px}.tabs{display:grid;grid-template-columns:1fr 1fr;background:#0a1016;padding:4px;margin-bottom:22px}.tab{background:transparent;color:var(--muted);border:0;padding:10px;font-size:11px;font-weight:700;letter-spacing:1px}.tab.active{background:#27333d;color:var(--text)}.field{display:block;margin:14px 0}.field span{display:block;font-size:10px;color:#aeb9c1;letter-spacing:1.2px;margin-bottom:8px}.field input{width:100%;height:45px;background:#0a1117;border:1px solid #35434e;color:white;padding:0 13px;outline:none;border-radius:0}.field input:focus{border-color:var(--accent)}.primary{width:100%;min-height:47px;border:0;background:var(--accent);color:#111;font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;margin-top:12px}.primary:hover{background:#d8bb87}.notice{font-size:11px;color:var(--muted);line-height:1.6;margin-top:16px}.error{min-height:18px;color:#e58b82;font-size:11px;margin-top:10px}.fineprint{color:#71808c;font-size:10px;line-height:1.6;margin-top:16px}
+.section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:20px}.section-head h2{font:800 34px 'Barlow Condensed';margin:8px 0 0}.player-chip{border:1px solid var(--line);padding:9px 12px;color:#cbd4da;font-size:11px}.player-chip b{color:var(--accent)}.character-grid,.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.character,.mode{background:#121b23;border:1px solid var(--line);padding:0;text-align:left;color:var(--text);transition:.2s;position:relative;overflow:hidden}.character:hover,.mode:hover{border-color:#7f8c93}.character.selected,.mode.selected{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}.character-visual{height:190px;background:linear-gradient(0deg,#111a22,transparent 60%),url('https://images.unsplash.com/photo-1595590424283-b8f17842773f?auto=format&fit=crop&w=700&q=80') center/cover;filter:saturate(.6)}.character:nth-child(2) .character-visual{background-image:linear-gradient(0deg,#111a22,transparent 60%),url('https://images.unsplash.com/photo-1563207153-f403bf289096?auto=format&fit=crop&w=700&q=80')}.character:nth-child(3) .character-visual{background-image:linear-gradient(0deg,#111a22,transparent 60%),url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=700&q=80')}.card-copy{padding:16px}.card-copy b{font:700 20px 'Barlow Condensed';letter-spacing:1px}.card-copy p{font-size:11px;color:var(--muted);line-height:1.6;margin:7px 0 0}.select-mark{position:absolute;right:12px;top:12px;border:1px solid #ffffff70;background:#0a111acc;padding:5px 8px;font-size:9px;letter-spacing:1px}.mode-grid{grid-template-columns:repeat(2,1fr)}.mode-visual{height:220px;background:linear-gradient(0deg,#101820,transparent 65%),url('https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=80') center/cover}.mode:nth-child(2) .mode-visual{background-image:linear-gradient(0deg,#101820,transparent 65%),url('https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=80')}.mode .card-copy{padding:20px}.mode .card-copy b{font-size:25px}.actions{display:flex;gap:12px;justify-content:flex-end;margin-top:22px}.actions .primary{width:auto;padding:0 30px}.secondary{background:transparent;border:1px solid var(--line);color:#cbd4da;padding:0 22px;min-height:47px;font-size:11px;font-weight:700;letter-spacing:1px}.lobby{padding:26px}.lobby-box{border:1px solid var(--line);background:#0b1218;padding:20px;margin-top:16px}.lobby-box h3{font:700 22px 'Barlow Condensed';margin:0 0 8px}.lobby-box p{font-size:12px;color:var(--muted);line-height:1.7}.status-line{display:flex;gap:10px;align-items:center;color:var(--green);font-size:11px;margin-top:16px}.footer{padding:18px clamp(18px,5vw,70px);border-top:1px solid #ffffff12;color:#64717b;font-size:10px;display:flex;justify-content:space-between;letter-spacing:1px}
+@media(max-width:800px){main{padding:30px 0 42px}.hero{grid-template-columns:1fr;gap:20px}.hero-art{height:180px}.auth-layout{grid-template-columns:1fr}.briefing{padding:22px}.auth{padding:22px}.character-grid{grid-template-columns:1fr}.character{display:grid;grid-template-columns:120px 1fr}.character-visual{height:130px}.mode-grid{grid-template-columns:1fr}.mode-visual{height:160px}.section-head{align-items:start;gap:12px;flex-direction:column}.footer{gap:8px;flex-direction:column}}@media(max-width:420px){.topbar{height:60px}.brand-name{font-size:21px}.top-status{font-size:8px}.hero h1{font-size:60px}.feature-list{grid-template-columns:1fr 1fr}.character{grid-template-columns:100px 1fr}.character-visual{height:140px}}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: var(--bg-deep); 
-            color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-        }
+#game-view{height:min(76svh,760px);min-height:520px;position:relative;background:#080d11;border:1px solid #39434a;overflow:hidden}
+#game-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.game-hud{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:16px}
+.hud-top,.hud-bottom{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.hud-box{background:#080d11c9;border:1px solid #ffffff32;padding:10px 13px;backdrop-filter:blur(8px);font:700 12px 'Barlow Condensed';letter-spacing:1px}
+.hud-box small{display:block;color:#a2adb5;font:500 9px Inter;letter-spacing:1px;margin-bottom:4px}
+.hud-number{font:800 22px 'Barlow Condensed';color:var(--accent)}
+#crosshair{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);opacity:.9}
+#crosshair:before,#crosshair:after{content:"";position:absolute;background:#e9eef2;box-shadow:0 0 3px #000}
+#crosshair:before{width:2px;height:18px;left:8px;top:0}
+#crosshair:after{height:2px;width:18px;left:0;top:8px}
+.game-help{position:absolute;left:50%;top:18px;transform:translateX(-50%);background:#080d11b8;padding:8px 12px;color:#d0d8de;font-size:10px;letter-spacing:1px;pointer-events:none;text-align:center}
+#game-exit{pointer-events:auto;min-height:38px;padding:0 13px;background:#141d25;border:1px solid #ffffff40;color:white;font-size:10px;letter-spacing:1px}
+#mobile-controls{display:none;position:absolute;inset:auto 0 18px;justify-content:space-between;align-items:end;padding:0 18px;pointer-events:none}
+#stick-zone{width:120px;height:120px;border:1px solid #ffffff50;border-radius:50%;background:#0a101766;pointer-events:auto;touch-action:none;position:relative}
+#stick-knob{position:absolute;width:48px;height:48px;border-radius:50%;background:#c8a66a9c;border:1px solid #f2d6a5;left:35px;top:35px}
+.mobile-actions{display:flex;gap:12px;align-items:end;pointer-events:auto}
+.mobile-actions button{width:64px;height:64px;border-radius:50%;background:#0a1017c9;border:1px solid #ffffff70;color:white;font:700 10px Inter;touch-action:none}
+.mobile-actions button.fire{background:#a83d34d9;border-color:#f18a7f}
+@media(pointer:coarse),(max-width:800px){#mobile-controls{display:flex}.game-help{top:76px;font-size:9px}.hud-box{padding:8px 10px}.game-hud{padding:10px}.hud-top{flex-wrap:wrap;gap:6px}.hud-top #game-exit{margin-left:auto}#game-view{min-height:560px;height:75svh}}
 
-        /* --- UI Components --- */
+/* RAAZIM boot sequence and landscape-first play shell */
+#raazim-splash{position:fixed;z-index:1300;inset:0;display:grid;place-items:center;background:#05080b;overflow:hidden;transition:opacity .65s ease,visibility .65s ease}
+#raazim-splash:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#c8a66a12 50%,transparent 65%),radial-gradient(ellipse at 50% 55%,#1d2932 0,transparent 58%)}
+#raazim-splash.leaving{opacity:0;visibility:hidden;pointer-events:none}
+.boot-inner{position:relative;text-align:center;display:grid;justify-items:center;gap:18px;padding:24px}
+.boot-wordmark{font:900 clamp(62px,12vw,118px)/.82 'Barlow Condensed';letter-spacing:.12em;color:#f2f3f1;text-shadow:0 12px 50px #000}
+.boot-wordmark span{color:var(--accent)}
+.boot-rule{width:min(280px,55vw);height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+.boot-sub{font-size:9px;letter-spacing:.48em;color:#9aa5ac}
+#boot-enter{margin-top:16px;background:transparent;border:1px solid #c8a66a88;color:#e8d5b5;padding:15px 32px;font:700 11px Inter;letter-spacing:3px}
+#boot-enter:active{background:#c8a66a;color:#080b0e}
+#rotate-gate{display:none;position:fixed;z-index:1200;inset:0;background:#070b0f;color:#f2f3f1;align-items:center;justify-content:center;text-align:center;padding:28px}
+.rotate-content{max-width:330px}.rotate-icon{font-size:42px;color:var(--accent);margin-bottom:20px}.rotate-content b{display:block;font:800 28px 'Barlow Condensed';letter-spacing:2px}.rotate-content p{font-size:12px;line-height:1.7;color:#9aa5ac}
+@media (orientation:portrait) and (max-width:900px){#rotate-gate{display:flex}}
+@media (pointer:coarse){#game-view{position:fixed;z-index:50;inset:0;width:100vw;height:100dvh;min-height:0;border:0;margin:0;max-height:none}#game-canvas{width:100%;height:100%;}#app.game-active main{width:100%;padding:0;margin:0}#app.game-active .topbar,#app.game-active .footer{display:none}.game-hud{padding:calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 9px) calc(env(safe-area-inset-bottom) + 8px) calc(env(safe-area-inset-left) + 9px)}#mobile-controls{bottom:calc(env(safe-area-inset-bottom) + 12px)}#stick-zone{width:clamp(90px,19vw,132px);height:clamp(90px,19vw,132px)}#stick-knob{left:calc(50% - 24px);top:calc(50% - 24px)}.mobile-actions button{width:clamp(52px,10vw,68px);height:clamp(52px,10vw,68px)}}
+@media (orientation:landscape) and (max-height:500px){#game-view{height:100dvh;min-height:0}.hud-box{padding:6px 9px}.hud-number{font-size:18px}.game-help{top:54px}.mobile-actions button{width:54px;height:54px}#stick-zone{width:100px;height:100px}}
+@media (prefers-reduced-motion:reduce){#raazim-splash{transition:none}}
 
-        /* Left Rail: Navigation & Stats */
-        #nav-rail {
-            width: 80px;
-            background: var(--bg-surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            gap: 30px;
-        }
-        .rail-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            background: var(--bg-accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.3s;
-            border: 1px solid transparent;
-        }
-        /* Spinner styles */
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid #fff;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            animation: spin 1s linear infinite;
-            display: none; /* Hidden by default */
-            margin-left: 8px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .rail-icon:hover { border-color: var(--primary); color: var(--primary); }
-        .rail-icon.active { background: var(--primary); color: white; }
-
-        /* Sidebar: Conversation List */
-        #sidebar {
-            width: 350px;
-            background: var(--bg-surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-        .sidebar-header {
-            padding: 24px;
-            border-bottom: 1px solid var(--border);
-        }
-        .sidebar-header h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 15px; }
-        .search-box {
-            background: var(--bg-accent);
-            border-radius: 8px;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            border: 1px solid var(--border);
-        }
-        .search-box input {
-            background: transparent;
-            border: none;
-            color: white;
-            margin-left: 10px;
-            outline: none;
-            width: 100%;
-        }
-
-        #inbox-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-        .chat-item {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            gap: 15px;
-            position: relative;
-        }
-        .chat-item:hover { background: rgba(255,255,255,0.02); }
-        .chat-item.active { background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--primary); }
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, var(--primary), #8b5cf6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-        .chat-info { flex: 1; min-width: 0; }
-        .chat-info .top { display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .chat-info h4 { font-size: 0.9rem; font-weight: 600; }
-        .chat-info .time { font-size: 0.75rem; color: var(--text-dim); }
-        .chat-info .preview { font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .status-dot { width: 10px; height: 10px; background: var(--success); border-radius: 50%; position: absolute; bottom: 20px; right: 24px; display: none; }
-
-        /* Main: Chat Interface */
-        #main-view {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-deep);
-        }
-        .main-header {
-            padding: 20px 30px;
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .user-meta-top h3 { font-size: 1.1rem; }
-        .user-meta-top span { font-size: 0.8rem; color: var(--success); }
-
-        #chat-scroller {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            background-image: radial-gradient(var(--bg-accent) 1px, transparent 1px);
-            background-size: 30px 30px;
-        }
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 70%; }
-        .msg-wrapper.customer { align-self: flex-start; }
-        .msg-wrapper.support { align-self: flex-end; }
-        
-        .msg-bubble {
-            padding: 14px 18px;
-            border-radius: 16px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            position: relative;
-        }
-        .customer .msg-bubble { background: var(--bg-accent); border-bottom-left-radius: 2px; border: 1px solid var(--border); }
-        .support .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 2px; box-shadow: 0 4px 15px var(--primary-glow); }
-        
-        .msg-time { font-size: 0.7rem; color: var(--text-dim); margin-top: 5px; }
-        .support .msg-time { text-align: right; }
-
-        /* Input Deck */
-        #input-deck {
-            padding: 20px 30px;
-            background: var(--bg-surface);
-            border-top: 1px solid var(--border);
-        }
-        .toolbar { display: flex; gap: 15px; margin-bottom: 15px; }
-        .tool-btn { font-size: 0.8rem; color: var(--text-dim); cursor: pointer; border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; transition: 0.2s; }
-        .tool-btn:hover { color: white; background: var(--bg-accent); }
-
-        .input-wrapper { display: flex; gap: 15px; align-items: flex-end; }
-        #admin-textarea {
-            flex: 1;
-            background: var(--bg-accent);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            color: white;
-            font-family: inherit;
-            resize: none;
-            outline: none;
-            min-height: 50px;
-            max-height: 150px;
-        }
-        #send-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex; /* Align text and spinner */
-            align-items: center;
-            justify-content: center;
-        }
-        #send-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px var(--primary-glow); }
-
-        /* Right Rail: Intelligence */
-        #intel-rail {
-            width: 300px;
-            background: var(--bg-surface);
-            border-left: 1px solid var(--border);
-            padding: 30px;
-            display: none; /* Shown when user selected */
-        }
-        .intel-section { margin-bottom: 30px; }
-        .intel-section h5 { color: var(--text-dim); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; margin-bottom: 15px; }
-        .data-card { background: var(--bg-accent); padding: 15px; border-radius: 12px; border: 1px solid var(--border); font-size: 0.85rem; }
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .data-row span:last-child { color: var(--primary); font-weight: 600; }
-
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--bg-accent); border-radius: 10px; }
-
-        /* New style for chat source in inbox */
-        .chat-source {
-            font-size: 0.7rem;
-            color: var(--primary);
-            margin-bottom: 4px;
-        }
-
-        /* --- Responsiveness --- */
-        @media (max-width: 1100px) {
-            #intel-rail { display: none !important; }
-        }
-
-        @media (max-width: 768px) {
-            body { flex-direction: column; overflow-y: auto; height: 100dvh; }
-            #nav-rail { width: 100%; height: 60px; flex-direction: row; border-right: none; border-bottom: 1px solid var(--border); padding: 0 20px; gap: 20px; flex-shrink: 0; justify-content: center; }
-            #sidebar { width: 100%; height: 350px; flex-shrink: 0; border-right: none; border-bottom: 1px solid var(--border); }
-            #main-view { width: 100%; flex: 1; }
-            .msg-wrapper { max-width: 85%; }
-        }
-
-        @media (max-width: 480px) {
-            #sidebar { height: 280px; }
-            .main-header { padding: 15px 20px; }
-            #chat-scroller { padding: 15px; }
-        }
-    </style>
+</style>
 </head>
 <body>
+<div id="raazim-splash" aria-label="RAAZIM game startup"><div class="boot-inner"><div class="boot-wordmark">RAA<span>Z</span>IM</div><div class="boot-rule"></div><div class="boot-sub">AN INDEPENDENT GAME EXPERIENCE</div><button id="boot-enter" type="button">TAP TO ENTER</button></div></div>
+<div id="rotate-gate"><div class="rotate-content"><div class="rotate-icon">↻</div><b>ROTATE YOUR DEVICE</b><p>LOOP OUT is designed for landscape play. Turn your phone sideways to enter the operation.</p></div></div>
+<div id="app">
+<header class="topbar"><div class="brand"><div class="brand-mark">L</div><div><div class="brand-name">LOOP OUT</div><div class="brand-sub">TACTICAL OPERATIONS</div></div></div><div class="top-status"><i class="dot"></i><span id="connection-label">SYSTEM STANDBY</span></div></header>
+<main>
+<section class="hero"><div><div class="eyebrow">MULTIPLAYER COMBAT SIMULATION / 001</div><h1>ENTER THE<br><span>OPERATION.</span></h1><p>A tactical first-person world built around positioning, awareness and teamwork. Create your callsign, select your operator and deploy when the battlefield is ready.</p></div><div class="hero-art"><div class="art-code">SECTOR 07 / CLASSIFIED</div><div class="art-label">FIELD OPERATIONS // LOOP OUT PROTOCOL</div></div></section>
+<section id="auth-view" class="auth-layout">
+<div class="panel briefing"><div class="eyebrow">MISSION BRIEFING</div><h2>NO TWO OPERATIONS ARE THE SAME.</h2><p>Build your operator identity now. The first release establishes player accounts, character identity and the two deployment queues. Live operator visibility is now being prototyped. Server-validated combat and AI opponents are still in development.</p><div class="feature-list"><div class="feature"><b>OPEN WORLD</b><span>Large-scale shared exploration</span></div><div class="feature"><b>SMALL ARENA</b><span>Compact close-quarters combat</span></div><div class="feature"><b>PLAYER IDENTITY</b><span>Your callsign and operator persist</span></div><div class="feature"><b>WEB DEPLOYMENT</b><span>Desktop and mobile browser support</span></div></div></div>
+<div class="panel auth"><h2>OPERATOR ACCESS</h2><p class="sub">Create a callsign or return to your account.</p><div class="tabs"><button class="tab active" id="signup-tab" type="button">CREATE ACCOUNT</button><button class="tab" id="login-tab" type="button">SIGN IN</button></div><form id="auth-form"><label class="field"><span>CALLSIGN / NICKNAME</span><input id="nickname" autocomplete="username" minlength="3" maxlength="16" pattern="[A-Za-z0-9_]+" placeholder="e.g. Ghost_07" required></label><label class="field"><span>PASSWORD</span><input id="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required></label><button class="primary" id="auth-submit" type="submit">CREATE OPERATOR</button><div class="error" id="auth-error" role="alert"></div></form><p class="fineprint">Use a unique password. This game uses Supabase authentication. Nicknames are public in-game identities; passwords are never stored in the game database as plain text.</p></div>
+</section>
+<section id="character-view" class="hidden"><div class="section-head"><div><div class="eyebrow">01 / OPERATOR CONFIGURATION</div><h2>CHOOSE YOUR OPERATOR</h2></div><div class="player-chip">CALLSIGN: <b id="callsign-display">—</b></div></div><div class="character-grid">
+<button class="character selected" data-character="recon"><div class="character-visual"></div><div class="card-copy"><b>RECON</b><p>Light field kit. Built for movement and scouting.</p></div><span class="select-mark">SELECTED</span></button>
+<button class="character" data-character="assault"><div class="character-visual"></div><div class="card-copy"><b>ASSAULT</b><p>Balanced operator configuration for direct engagements.</p></div><span class="select-mark">SELECT</span></button>
+<button class="character" data-character="support"><div class="character-visual"></div><div class="card-copy"><b>SUPPORT</b><p>Heavy field kit. A steadier, defensive profile.</p></div><span class="select-mark">SELECT</span></button>
+</div><div class="actions"><button class="primary" id="to-modes">CONFIRM OPERATOR</button></div></section>
+<section id="mode-view" class="hidden"><div class="section-head"><div><div class="eyebrow">02 / DEPLOYMENT SELECT</div><h2>SELECT YOUR MODE</h2></div><div class="player-chip">OPERATOR: <b id="mode-callsign">—</b></div></div><div class="mode-grid">
+<button class="mode selected" data-mode="open_world"><div class="mode-visual"></div><div class="card-copy"><b>OPEN WORLD</b><p>Explore a broad training environment with live operator visibility.</p></div></button>
+<button class="mode" data-mode="small_arena"><div class="mode-visual"></div><div class="card-copy"><b>SMALL ARENA</b><p>A compact combat zone designed for short, intense engagements.</p></div></button>
+</div><div class="actions"><button class="secondary" id="signout-main">SIGN OUT</button><button class="secondary" id="back-character">BACK</button><button class="primary" id="deploy">ENTER DEPLOYMENT</button></div></section>
+<section id="lobby-view" class="hidden panel lobby"><div class="eyebrow">03 / DEPLOYMENT QUEUE</div><h2 class="section-title" id="lobby-title">OPEN WORLD</h2><div class="lobby-box"><h3>DEPLOYMENT READY</h3><p>Your operator is connected to the live training sector. Enter a mode to move, aim, fire, reload and practice against range targets. Multiplayer visibility is experimental and combat is not yet server-authoritative.</p><div class="status-line"><i class="dot"></i><span id="lobby-status">Operator identity confirmed</span></div></div><div class="actions"><button class="secondary" id="back-modes">CHANGE MODE</button><button class="primary" id="signout">SIGN OUT</button></div></section>
 
-    <div id="nav-rail">
-        <div class="logo-area" style="color: var(--primary); font-weight: 900; font-size: 1.5rem;">R</div>
-        <div class="rail-icon active">📥</div>
-        <div class="rail-icon">📊</div>
-        <div class="rail-icon">⚙️</div>
-    </div>
-
-    <div id="sidebar">
-        <div class="sidebar-header">
-            <h2>Inbox</h2>
-            <div class="search-box">
-                <span>🔍</span>
-                <input type="text" placeholder="Search conversations...">
-            </div>
-        </div>
-        <div id="inbox-list">
-            </div>
-    </div>
-
-    <div id="main-view">
-        <div class="main-header" id="chat-header-ui" style="visibility: hidden;">
-            <div class="user-meta-top">
-                <h3 id="active-user-name">Select a User</h3>
-                <span>● Active Now</span>
-            </div>
-            <div class="actions">
-                <button class="tool-btn" onclick="archiveChat()">Archive Session</button>
-            </div>
-        </div>
-
-        <div id="chat-scroller">
-            <div style="margin: auto; text-align: center; color: var(--text-dim);">
-                <h3>Welcome, Raazim Admin</h3>
-                <p>Select a customer from the sidebar to begin live support.</p>
-            </div>
-        </div>
-
-        <div id="input-deck">
-            <div class="toolbar">
-                <div class="tool-btn" onclick="insertCanned('Hi! How can I assist you with Raazim Tech solutions today?')">Greeting</div>
-                <div class="tool-btn" onclick="insertCanned('Thank you for your patience. I am checking our server status now.')">Status Check</div>
-                <div class="tool-btn" onclick="insertCanned('I have escalated this ticket to our senior developers. We will get back to you.')">Escalate</div>
-            </div>
-            <div class="input-wrapper">
-                <textarea id="admin-textarea" placeholder="Type your reply here..." onkeypress="handleEnter(event)"></textarea>
-                <button id="send-btn" onclick="sendReply()">
-                    <span>Send Message</span><span class="spinner" id="send-spinner-cs"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="intel-rail">
-        <div class="intel-section">
-            <h5>Customer Intelligence</h5>
-            <div class="data-card">
-                <div class="data-row"><span>ID:</span> <span id="intel-id">-</span></div>
-                <div class="data-row"><span>Region:</span> <span>Global</span></div>
-                <div class="data-row"><span>Status:</span> <span>Verified</span></div>
-                <div class="data-row"><span>Source:</span> <span id="intel-source-value">-</span></div> <!-- New row for source -->
-            </div>
-        </div>
-        <div class="intel-section">
-            <h5>Session Stats</h5>
-            <div class="data-card">
-                <div class="data-row"><span>Total Msgs:</span> <span id="intel-total">0</span></div>
-                <div class="data-row"><span>Last Seen:</span> <span id="intel-seen">Just now</span></div>
-            </div>
-        </div>
-    </div>
-
+<section id="game-view" class="hidden" aria-label="LOOP OUT training range">
+ <canvas id="game-canvas"></canvas>
+ <div class="game-help" id="game-help">CLICK THE FIELD TO LOCK MOUSE · WASD MOVE · MOUSE AIM · CLICK FIRE · R RELOAD</div>
+ <div id="crosshair"></div>
+ <div class="game-hud">
+  <div class="hud-top">
+   <div class="hud-box"><small>LOOP OUT // TRAINING SECTOR</small><span id="game-mode-label">OPEN WORLD</span></div>
+   <div class="hud-box"><small>OPERATOR</small><span id="game-player-label">PLAYER</span></div>
+   <div class="hud-box"><small>PLAYERS IN ROOM</small><span class="hud-number" id="game-player-count">01</span></div>
+   <button id="game-exit" type="button">EXIT RANGE</button>
+  </div>
+  <div class="hud-bottom">
+   <div class="hud-box"><small>HEALTH</small><span class="hud-number" id="game-health">100</span></div>
+   <div class="hud-box"><small>ELIMINATIONS</small><span class="hud-number" id="game-score">00</span></div>
+   <div class="hud-box"><small>AMMUNITION</small><span class="hud-number" id="game-ammo">30 / 120</span></div>
+  </div>
+ </div>
+ <div id="mobile-controls">
+  <div id="stick-zone"><div id="stick-knob"></div></div>
+  <div class="mobile-actions"><button id="reload-touch" type="button">RELOAD</button><button class="fire" id="fire-touch" type="button">FIRE</button></div>
+ </div>
+</section>
+</main><footer class="footer"><span>LOOP OUT // TACTICAL OPERATIONS</span><span>STAGE 02–03 — 3D + MULTIPLAYER PROTOTYPE</span></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    const BIN_ID = '69d76cd7856a68218914733e';
-    const KEY = '$2a$10$boob7HiU/Qq/iPITpxeE0.knWZ6rRbVaVVdBwmJlAgmAbrlr2gX1.';
-    
-    let db = { chats: {} };
-    let currentUserId = null;
-
-    // --- Core Sync Logic ---
-    async function sync() {
-        try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': KEY, "X-Bin-Meta": "false" }
-            });
-            if (!res.ok) return;
-            const latest = await res.json();
-            db = (latest && latest.chats) ? latest : { chats: {} };
-            renderInbox();
-            if(currentUserId) renderMessages();
-        } catch (e) {
-            console.error("Critical Sync Error: Check JSONBin connectivity.");
-        }
-    }
-
-    function renderInbox() {
-        const list = document.getElementById('inbox-list');
-        const sortedUsers = Object.keys(db.chats || {}).sort((a,b) => {
-            const lastA = new Date(db.chats[a].messages.slice(-1)[0]?.time || 0);
-            const lastB = new Date(db.chats[b].messages.slice(-1)[0]?.time || 0);
-            return lastB - lastA;
-        });
-
-        list.innerHTML = '';
-        sortedUsers.forEach(uid => {
-            const lastMsg = db.chats[uid].messages.slice(-1)[0];
-            const div = document.createElement('div');
-            const chatSource = db.chats[uid].source ? `<span class="chat-source">${db.chats[uid].source}</span>` : '';
-            div.className = `chat-item ${uid === currentUserId ? 'active' : ''}`;
-            div.onclick = () => selectUser(uid);
-            
-            div.innerHTML = `
-                <div class="avatar">${uid.charAt(0)}</div>
-                <div class="chat-info">
-                    <div class="top">
-                        <h4>${uid}</h4>
-                        ${chatSource}
-                        <span class="time">${lastMsg ? formatTime(lastMsg.time) : ''}</span>
-                    </div>
-                    <div class="preview">${lastMsg ? lastMsg.text : 'New conversation started'}</div>
-                </div>
-                ${lastMsg && lastMsg.sender === 'customer' ? '<div class="status-dot" style="display:block"></div>' : ''}
-            `;
-            list.appendChild(div);
-        });
-    }
-
-    function selectUser(uid) {
-        currentUserId = uid;
-        document.getElementById('chat-header-ui').style.visibility = 'visible';
-        document.getElementById('intel-rail').style.display = 'block';
-        document.getElementById('active-user-name').innerText = uid;
-        
-        // Update Intelligence Rail
-        document.getElementById('intel-id').innerText = uid;
-        document.getElementById('intel-total').innerText = db.chats[uid].messages.length;
-        document.getElementById('intel-source-value').innerText = db.chats[uid].source || 'Unknown'; // Display source
-
-        renderInbox();
-        renderMessages();
-    }
-
-    function renderMessages() {
-        const scroller = document.getElementById('chat-scroller');
-        scroller.innerHTML = '';
-        const msgs = db.chats[currentUserId].messages;
-
-        msgs.forEach(m => {
-            const wrap = document.createElement('div');
-            wrap.className = `msg-wrapper ${m.sender}`;
-            wrap.innerHTML = `
-                <div class="msg-bubble">${m.text}</div>
-                <div class="msg-time">${formatTime(m.time)}</div>
-            `;
-            scroller.appendChild(wrap);
-        });
-        scroller.scrollTop = scroller.scrollHeight;
-    }
-
-    async function sendReply() {
-        const input = document.getElementById('admin-textarea');
-        if(!currentUserId || !input.value.trim()) return;
-
-        const msgText = input.value.trim();
-        const sendBtn = document.getElementById('send-btn');
-        const btnText = sendBtn.querySelector('span');
-        const spinner = document.getElementById('send-spinner-cs');
-
-        try {
-            sendBtn.disabled = true;
-            btnText.style.display = 'none';
-            spinner.style.display = 'block';
-
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': KEY, "X-Bin-Meta": "false" }
-            });
-            if (res.ok) {
-                const latest = await res.json();
-                if (latest && latest.chats) db = latest;
-            }
-
-            if (!db.chats[currentUserId]) db.chats[currentUserId] = { messages: [] };
-            db.chats[currentUserId].messages.push({
-                sender: 'support',
-                text: msgText,
-                time: new Date().toISOString()
-            });
-
-            renderMessages();
-            input.value = '';
-
-            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': KEY },
-                body: JSON.stringify(db)
-            });
-            sync();
-        } catch (e) {
-            console.error("Reply failed:", e);
-        } finally {
-            sendBtn.disabled = false;
-            btnText.style.display = 'inline';
-            spinner.style.display = 'none';
-        }
-    }
-
-    // --- Helpers ---
-    function formatTime(iso) {
-        const d = new Date(iso);
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function insertCanned(text) {
-        document.getElementById('admin-textarea').value = text;
-    }
-
-    function handleEnter(e) {
-        if(e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendReply();
-        }
-    }
-
-    function archiveChat() {
-        if(confirm("Confirm archiving this session? This will remove it from active view.")) {
-            // Logic to delete or move user in JSON here
-        }
-    }
-
-    // Poll every 3.5 seconds
-    setInterval(sync, 2000); // Reduced polling interval for faster updates
-    sync();
+/* LOOP OUT uses its namespaced profile table and realtime channels in the authorized Supabase project. */
+const SUPABASE_URL = "https://dpiwdhtbhwjgatvcfkcb.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_PSZnTEo74jObih_6TTpXVQ_tJwzTnXY";
+const USERNAME_DOMAIN = "players.blackout.invalid";
+const hasSupabaseConfig = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+const supabase = hasSupabaseConfig && window.supabase ? window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY) : null;
+window.loopOutSupabase=supabase;
+let authMode = "signup";
+let currentUser = null;
+let currentProfile = null;
+let selectedCharacter = "recon";
+let selectedMode = "open_world";
+let introComplete = false;
+const $ = id => document.getElementById(id);
+const views = ["auth-view","character-view","mode-view","lobby-view","game-view"];
+function showView(id){views.forEach(v=>$(v).classList.toggle("hidden",v!==id));$("app").classList.toggle("game-active",id==="game-view");}
+function setError(message){$("auth-error").textContent=message||"";}
+async function requestLandscape(){
+ if(!matchMedia("(pointer: coarse)").matches)return;
+ const requests=[];
+ try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)requests.push(document.documentElement.requestFullscreen());}catch(_){}
+ try{if(screen.orientation?.lock)requests.push(screen.orientation.lock("landscape"));}catch(_){}
+ await Promise.allSettled(requests);
+}
+function enterBoot(){
+ introComplete=true;
+ const splash=$("raazim-splash");splash.classList.add("leaving");
+ requestLandscape();
+ if(window.__loopOutSession){routeSignedIn();}else{showView("auth-view");}
+ setTimeout(()=>splash.remove(),750);
+}
+function routeSignedIn(){
+ if(!currentUser||!currentProfile)return;
+ window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:currentProfile.character_id};
+ $("callsign-display").textContent=currentProfile.username;$("mode-callsign").textContent=currentProfile.username;
+ showView("character-view");
+}
+$("boot-enter").addEventListener("click",enterBoot);
+function usernameEmail(name){return name.trim().toLowerCase()+"@"+USERNAME_DOMAIN;}
+function setAuthMode(mode){authMode=mode;$("signup-tab").classList.toggle("active",mode==="signup");$("login-tab").classList.toggle("active",mode==="login");$("auth-submit").textContent=mode==="signup"?"CREATE OPERATOR":"SIGN IN";$("password").autocomplete=mode==="signup"?"new-password":"current-password";setError("");}
+$("signup-tab").addEventListener("click",()=>setAuthMode("signup"));
+$("login-tab").addEventListener("click",()=>setAuthMode("login"));
+$("auth-form").addEventListener("submit",async e=>{
+ e.preventDefault();setError("");
+ const nickname=$("nickname").value.trim();const password=$("password").value;
+ if(!/^[A-Za-z0-9_]{3,16}$/.test(nickname)){setError("Use 3–16 letters, numbers or underscores for your callsign.");return;}
+ if(password.length<8){setError("Password must contain at least 8 characters.");return;}
+ if(!supabase){setError("Authentication service is unavailable. Please try again later.");return;}
+ const btn=$("auth-submit");btn.disabled=true;btn.textContent="CONNECTING…";
+ try{
+  const email=usernameEmail(nickname);
+  let result;
+  if(authMode==="signup"){
+   result=await supabase.auth.signUp({email,password,options:{data:{app:"blackout",username:nickname}}});
+   if(result.error)throw result.error;
+   if(!result.data.session){throw new Error("Account created, but email confirmation is enabled in this Supabase project. Disable email confirmations in Auth settings, then sign in again.");}
+   currentUser=result.data.user;
+  }else{
+   result=await supabase.auth.signInWithPassword({email,password});
+   if(result.error)throw result.error;
+   currentUser=result.data.user;
+  }
+  await loadProfile(nickname);
+  window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:currentProfile.character_id};
+  $("callsign-display").textContent=currentProfile.username;
+  $("mode-callsign").textContent=currentProfile.username;
+  showView("character-view");
+ }catch(err){setError(err.message||"Authentication failed.");}
+ finally{btn.disabled=false;btn.textContent=authMode==="signup"?"CREATE OPERATOR":"SIGN IN";}
+});
+async function loadProfile(fallbackName){
+ const {data,error}=await supabase.from("blackout_player_profiles").select("id,username,character_id").eq("id",currentUser.id).single();
+ if(error)throw new Error("Player profile unavailable: "+error.message);
+ currentProfile=data;
+ selectedCharacter=data.character_id||"recon";
+ document.querySelectorAll(".character").forEach(card=>{const on=card.dataset.character===selectedCharacter;card.classList.toggle("selected",on);card.querySelector(".select-mark").textContent=on?"SELECTED":"SELECT";});
+}
+document.querySelectorAll(".character").forEach(card=>card.addEventListener("click",()=>{selectedCharacter=card.dataset.character;document.querySelectorAll(".character").forEach(c=>{const on=c===card;c.classList.toggle("selected",on);c.querySelector(".select-mark").textContent=on?"SELECTED":"SELECT";});}));
+$("to-modes").addEventListener("click",async()=>{if(supabase&&currentUser){const {error}=await supabase.from("blackout_player_profiles").update({character_id:selectedCharacter}).eq("id",currentUser.id);if(error){alert("Could not save operator: "+error.message);return;}currentProfile={...currentProfile,character_id:selectedCharacter};window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:selectedCharacter};}showView("mode-view");});
+document.querySelectorAll(".mode").forEach(card=>card.addEventListener("click",()=>{selectedMode=card.dataset.mode;document.querySelectorAll(".mode").forEach(c=>c.classList.toggle("selected",c===card));}));
+$("back-character").addEventListener("click",()=>showView("character-view"));
+$("deploy").addEventListener("click",()=>{showView("game-view");$("game-mode-label").textContent=selectedMode==="open_world"?"OPEN WORLD":"SMALL ARENA";$("game-player-label").textContent=currentProfile?.username||"OPERATOR";if(window.startLoopOutGame)window.startLoopOutGame(selectedMode);else $("game-help").textContent="3D ENGINE LOADING…";});
+$("back-modes").addEventListener("click",()=>showView("mode-view"));
+$("game-exit").addEventListener("click",()=>{if(window.stopLoopOutGame)window.stopLoopOutGame();showView("mode-view");});
+$("signout").addEventListener("click",async()=>{if(supabase)await supabase.auth.signOut();currentUser=null;currentProfile=null;showView("auth-view");});
+if(!hasSupabaseConfig){$("connection-label").textContent="DATABASE SETUP PENDING";}
+else{$("connection-label").textContent="AUTH SERVICE READY";supabase.auth.getSession().then(async({data})=>{if(data.session){currentUser=data.session.user;try{await loadProfile();window.__loopOutSession=true;if(introComplete)routeSignedIn();}catch(e){console.error("Session restore failed",e);}}});supabase.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){currentUser=null;currentProfile=null;window.__loopOutSession=false;}else if(event==="SIGNED_IN"&&session){currentUser=session.user;window.__loopOutSession=true;}});}
 </script>
-</body>
-</html>
+<script type="module" src="./game.js"></script>
+</body></html>
