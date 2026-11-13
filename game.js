@@ -5,6 +5,7 @@ import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/
 let renderer, scene, camera, controls, animationId, running=false, selectedMode="open_world", worldMode=null, resizeBound=false, clickBound=false;
 let targets=[], obstacles=[], keys={}, ammo=30, reserve=120, score=0, reloading=false, lastShot=0, weaponModel=null, muzzleFlash=null;
 let yaw=0,pitch=0,stick={x:0,y:0},touchLook=null;
+let networkChannel=null,networkReady=false,remotePlayers=new Map(),lastNetworkSend=0,weaponRecoil=0,audioContext=null;
 const raycaster=new THREE.Raycaster();
 const clock=new THREE.Clock();
 const assetLoader=new GLTFLoader();
@@ -23,6 +24,64 @@ function makeTarget(x,z){
  const plateMesh=new THREE.Mesh(new THREE.BoxGeometry(.45,.3,.06),plate);plateMesh.position.set(0,1.2,-.31);group.add(plateMesh);
  group.userData={alive:true,respawn:0,parts:[body,headMesh,leg1,leg2,plateMesh]};
  scene.add(group);targets.push(group);return group;
+}
+
+function createRemotePlayer(playerId,data={}){
+ const group=new THREE.Group();
+ const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.72,4,8),mat(0x526c62));body.position.y=1.05;body.castShadow=true;group.add(body);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10),mat(0xb5a28b));head.position.y=1.78;head.castShadow=true;group.add(head);
+ const vest=new THREE.Mesh(new THREE.BoxGeometry(.48,.38,.24),mat(0x303b40));vest.position.set(0,1.15,-.02);group.add(vest);
+ group.userData={playerId,username:String(data.username||"OPERATOR").slice(0,16),targetPosition:new THREE.Vector3(0,0,0),targetYaw:0};
+ scene.add(group);remotePlayers.set(playerId,group);return group;
+}
+function applyRemoteState(data){
+ const playerId=data?.player_id||data?.user_id;if(!playerId||playerId===window.loopOutPlayer?.id||!scene)return;
+ const x=Number(data.x),z=Number(data.z),angle=Number(data.yaw);
+ if(!Number.isFinite(x)||!Number.isFinite(z)||!Number.isFinite(angle)||Math.abs(x)>60||Math.abs(z)>60)return;
+ let player=remotePlayers.get(playerId);if(!player)player=createRemotePlayer(playerId,data);
+ player.userData.username=String(data.username||player.userData.username).slice(0,16);
+ player.userData.targetPosition.set(x,0,z);player.userData.targetYaw=angle;
+}
+function syncRemotePlayers(){
+ if(!networkChannel)return;const state=networkChannel.presenceState(),active=new Set();
+ Object.values(state).flat().forEach(p=>{if(p.user_id&&p.user_id!==window.loopOutPlayer?.id){active.add(p.user_id);applyRemoteState({...p,player_id:p.user_id});}});
+ for(const [id,player] of remotePlayers){if(!active.has(id)){scene?.remove(player);remotePlayers.delete(id);}}
+ const count=remotePlayers.size+1;const el=$("game-player-count");if(el)el.textContent=String(count).padStart(2,"0");
+}
+async function connectRoom(){
+ const client=window.loopOutSupabase,identity=window.loopOutPlayer;
+ if(!client||!identity?.id){$("connection-label").textContent="LOCAL TRAINING";return;}
+ const topic="loopout:"+selectedMode;
+ networkChannel=client.channel(topic,{config:{private:true,presence:{key:identity.id}}});
+ networkChannel.on("presence",{event:"sync"},syncRemotePlayers);
+ networkChannel.on("presence",{event:"join"},syncRemotePlayers);
+ networkChannel.on("presence",{event:"leave"},syncRemotePlayers);
+ networkChannel.on("broadcast",{event:"player_state"},({payload})=>applyRemoteState(payload));
+ networkChannel.subscribe(async status=>{
+  if(status==="SUBSCRIBED"){
+   networkReady=true;$("connection-label").textContent="ROOM CONNECTED";
+   await networkChannel.track({user_id:identity.id,username:identity.username,character_id:identity.character_id,joined_at:new Date().toISOString(),x:camera.position.x,z:camera.position.z,yaw});
+   syncRemotePlayers();
+  }else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED"){
+   networkReady=false;$("connection-label").textContent="ROOM OFFLINE";
+   $("game-help").textContent="ROOM CONNECTION LOST · LOCAL TRAINING CONTINUES";
+  }
+ });
+}
+function sendPlayerState(){
+ if(!networkReady||!networkChannel||!camera)return;
+ const identity=window.loopOutPlayer;
+ networkChannel.send({type:"broadcast",event:"player_state",payload:{player_id:identity.id,username:identity.username,x:Number(camera.position.x.toFixed(2)),z:Number(camera.position.z.toFixed(2)),yaw:Number(yaw.toFixed(3))}});
+}
+function playShotSound(){
+ try{
+  if(!audioContext)audioContext=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioContext.state==="suspended")audioContext.resume();
+  const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+  osc.type="sawtooth";osc.frequency.setValueAtTime(125,audioContext.currentTime);osc.frequency.exponentialRampToValueAtTime(42,audioContext.currentTime+.11);
+  gain.gain.setValueAtTime(.075,audioContext.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.12);
+  osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+.13);
+ }catch(_){/* Audio is optional; gameplay must continue if unavailable. */}
 }
 
 function addEnvironmentModel(sceneRef,file,x,z,targetHeight,rotation=0){
@@ -124,7 +183,7 @@ function move(dt){
 }
 function shoot(){
  if(!running||reloading||ammo<=0||performance.now()-lastShot<145)return;
- lastShot=performance.now();ammo--;updateHud();if(weaponModel){weaponModel.position.z=.045;setTimeout(()=>{if(weaponModel)weaponModel.position.z=0;},65);}if(muzzleFlash){muzzleFlash.visible=true;setTimeout(()=>{if(muzzleFlash)muzzleFlash.visible=false;},45);}
+ lastShot=performance.now();ammo--;weaponRecoil=.12;playShotSound();updateHud();if(muzzleFlash){muzzleFlash.visible=true;setTimeout(()=>{if(muzzleFlash)muzzleFlash.visible=false;},45);}
  raycaster.setFromCamera(new THREE.Vector2(0,0),camera);
  const meshes=[];targets.forEach(t=>{if(t.userData.alive)t.userData.parts.forEach(p=>meshes.push(p));});
  const hit=raycaster.intersectObjects(meshes,false)[0];
@@ -133,7 +192,14 @@ function shoot(){
 function reload(){if(reloading||ammo===30||reserve<=0)return;reloading=true;$("game-ammo").textContent="RELOADING";setTimeout(()=>{const n=Math.min(30-ammo,reserve);ammo+=n;reserve-=n;reloading=false;updateHud();},1150);}
 function updateHud(){$("game-ammo").textContent=ammo+" / "+reserve;}
 function updateTargets(){const now=performance.now();targets.forEach(t=>{if(!t.userData.alive&&now>=t.userData.respawn){t.userData.alive=true;t.visible=true;}});}
-function animate(){if(!running)return;animationId=requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);if(controls?.isLocked){yaw=camera.rotation.y;}move(dt);updateTargets();renderer.render(scene,camera);}
+function animate(){
+ if(!running)return;animationId=requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);
+ if(controls?.isLocked){yaw=camera.rotation.y;}move(dt);updateTargets();
+ if(weaponModel){weaponRecoil=Math.max(0,weaponRecoil-dt*.95);const moving=stick.x!==0||stick.y!==0||keys.KeyW||keys.KeyA||keys.KeyS||keys.KeyD;const sway=moving?Math.sin(clock.elapsedTime*9)*.008:0;weaponModel.position.set(sway,moving?Math.abs(Math.cos(clock.elapsedTime*9))*.006:0,weaponRecoil);}
+ const now=performance.now();if(networkReady&&now-lastNetworkSend>100){lastNetworkSend=now;sendPlayerState();}
+ remotePlayers.forEach(player=>{player.position.lerp(player.userData.targetPosition,Math.min(1,dt*12));player.rotation.y=THREE.MathUtils.lerp(player.rotation.y,player.userData.targetYaw,Math.min(1,dt*10));});
+ renderer.render(scene,camera);
+}
 function bindControls(){
  window.addEventListener("keydown",e=>{keys[e.code]=true;if(e.code==="KeyR")reload();});window.addEventListener("keyup",e=>keys[e.code]=false);
  window.addEventListener("mousedown",e=>{if(e.button===0&&controls?.isLocked)shoot();});
@@ -147,12 +213,16 @@ function bindControls(){
  canvas.addEventListener("touchmove",e=>{if(!touchLook)return;const t=e.touches[0],dx=t.clientX-touchLook.x,dy=t.clientY-touchLook.y;touchLook={x:t.clientX,y:t.clientY};yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch-dy*.004,-1.35,1.35);camera.rotation.set(pitch,yaw,0,"YXZ");},{passive:true});
  canvas.addEventListener("touchend",()=>touchLook=null);
 }
-window.startBlackoutGame=function(mode="open_world"){
+window.startLoopOutGame=function(mode="open_world"){
  selectedMode=mode;if(running)stopGame();running=true;ammo=30;reserve=120;score=0;reloading=false;yaw=0;pitch=0;stick={x:0,y:0};keys={};$("game-help").textContent=matchMedia("(pointer: coarse)").matches?"LEFT STICK MOVE · DRAG TO AIM · FIRE / RELOAD":"CLICK FIELD TO LOCK MOUSE · WASD MOVE · MOUSE AIM · CLICK FIRE · R RELOAD";
  $("game-score").textContent="00";$("game-health").textContent="100";updateHud();
  if(!renderer||worldMode!==mode){buildWorld(mode);worldMode=mode;}else{camera.position.set(0,1.7,mode==="small_arena"?20:12);camera.rotation.set(0,0,0);targets.forEach(t=>{t.visible=true;t.userData.alive=true;});}
- resize();clock.start();animate();
+ resize();clock.start();animate();connectRoom();
 };
-function stopGame(){running=false;if(animationId)cancelAnimationFrame(animationId);if(controls?.isLocked)controls.unlock();}
-window.stopBlackoutGame=stopGame;
+function stopGame(){
+ running=false;networkReady=false;if(animationId)cancelAnimationFrame(animationId);if(controls?.isLocked)controls.unlock();
+ if(networkChannel){const channel=networkChannel;networkChannel=null;channel.untrack().catch(()=>{});window.loopOutSupabase?.removeChannel(channel);}
+ remotePlayers.forEach(player=>scene?.remove(player));remotePlayers.clear();const count=$("game-player-count");if(count)count.textContent="01";
+}
+window.stopLoopOutGame=stopGame;
 bindControls();
