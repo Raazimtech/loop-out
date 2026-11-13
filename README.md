@@ -31,3 +31,15 @@ Open the repository through GitHub Pages or a local static server. The 3D runtim
 `game-stage-1-foundation`
 
 The default branch remains untouched until the staged build is reviewed.
+
+
+## Included third-party environment assets
+
+BLACKOUT now includes a small set of local GLB environment models:
+- Kenney City Kit Suburban: three building models and a tree.
+- Kenney City Kit Roads: construction barriers and cones.
+
+Source pack: https://github.com/petroulacl/fps-buildings-env-kit
+Original asset creator: Kenney.
+License: CC0 / public domain, including commercial use. See `assets/blackout/CREDITS.md`.
+Models load asynchronously; the existing procedural map remains as a fallback if loading fails.

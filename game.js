@@ -1,11 +1,14 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 import { PointerLockControls } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/PointerLockControls.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
 
 let renderer, scene, camera, controls, animationId, running=false, selectedMode="open_world", worldMode=null, resizeBound=false, clickBound=false;
 let targets=[], obstacles=[], keys={}, ammo=30, reserve=120, score=0, reloading=false, lastShot=0, weaponModel=null, muzzleFlash=null;
 let yaw=0,pitch=0,stick={x:0,y:0},touchLook=null;
 const raycaster=new THREE.Raycaster();
 const clock=new THREE.Clock();
+const assetLoader=new GLTFLoader();
+const assetRoot="./assets/blackout/";
 const canvas=document.getElementById("game-canvas");
 const $=id=>document.getElementById(id);
 const mat=(color,roughness=.85)=>new THREE.MeshStandardMaterial({color,roughness});
@@ -21,6 +24,42 @@ function makeTarget(x,z){
  group.userData={alive:true,respawn:0,parts:[body,headMesh,leg1,leg2,plateMesh]};
  scene.add(group);targets.push(group);return group;
 }
+
+function addEnvironmentModel(sceneRef,file,x,z,targetHeight,rotation=0){
+ assetLoader.load(assetRoot+file,gltf=>{
+  if(scene!==sceneRef)return;
+  const model=gltf.scene;
+  const bounds=new THREE.Box3().setFromObject(model);
+  const size=bounds.getSize(new THREE.Vector3());
+  if(!size.y)return;
+  const scale=targetHeight/size.y;
+  model.scale.setScalar(scale);
+  model.rotation.y=rotation;
+  model.position.set(x,-bounds.min.y*scale,z);
+  model.traverse(node=>{if(node.isMesh){node.castShadow=true;node.receiveShadow=true;}});
+  sceneRef.add(model);
+ },undefined,()=>{/* Procedural geometry remains as a safe fallback. */});
+}
+function loadEnvironmentAssets(sceneRef,arena){
+ if(arena){
+  addEnvironmentModel(sceneRef,"construction-barrier.glb",-16,5,1.15,Math.PI/2);
+  addEnvironmentModel(sceneRef,"construction-barrier.glb",16,-5,1.15,Math.PI/2);
+  addEnvironmentModel(sceneRef,"construction-cone.glb",-20,-18,.9);
+  addEnvironmentModel(sceneRef,"construction-cone.glb",20,18,.9);
+ }else{
+  addEnvironmentModel(sceneRef,"building-type-a.glb",-34,-29,7,Math.PI/2);
+  addEnvironmentModel(sceneRef,"building-type-b.glb",34,-28,7,Math.PI);
+  addEnvironmentModel(sceneRef,"building-type-c.glb",34,31,7,-Math.PI/2);
+  addEnvironmentModel(sceneRef,"tree-large.glb",-39,34,6);
+  addEnvironmentModel(sceneRef,"tree-large.glb",39,-39,6);
+  addEnvironmentModel(sceneRef,"tree-large.glb",-39,-39,6);
+  addEnvironmentModel(sceneRef,"construction-barrier.glb",-12,10,1.2,Math.PI/2);
+  addEnvironmentModel(sceneRef,"construction-barrier.glb",12,10,1.2,Math.PI/2);
+  addEnvironmentModel(sceneRef,"construction-cone.glb",-16,10,.9);
+  addEnvironmentModel(sceneRef,"construction-cone.glb",16,10,.9);
+ }
+}
+
 function buildWorld(mode){
  const arena=mode==="small_arena";obstacles=[];targets=[];if(controls)controls.disconnect();
  scene=new THREE.Scene();scene.background=new THREE.Color(0x9aa5a3);scene.fog=new THREE.Fog(0x9aa5a3,35,arena?65:125);
@@ -65,6 +104,7 @@ function buildWorld(mode){
   camera.position.set(0,1.7,12);
  }
 
+ loadEnvironmentAssets(scene,arena);
  controls=new PointerLockControls(camera,renderer.domElement);
  controls.addEventListener("lock",()=>{$("game-help").style.display="none";});
  controls.addEventListener("unlock",()=>{if(running)$("game-help").style.display="block";});
