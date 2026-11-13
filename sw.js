@@ -1,4 +1,4 @@
-const CACHE_NAME = "loop-out-offline-v3";
+const CACHE_NAME = "loop-out-offline-v4";
 const APP_SHELL = [
   "./", "./index.html", "./game.js", "./manifest.webmanifest", "./gamelogo.png",
   "./assets/blackout/building-type-a.glb", "./assets/blackout/building-type-b.glb",
@@ -8,7 +8,9 @@ const APP_SHELL = [
 const VENDOR = [
   "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
   "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/PointerLockControls.js",
-  "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js"
+  "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js",
+  "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/utils/SkeletonUtils.js",
+  "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r180/examples/models/gltf/Soldier.glb"
 ];
 
 self.addEventListener("install", event => {
