@@ -29,6 +29,16 @@ try {
     await page.locator("#game-player-label").fill("TESTPLAYER");
     assert.equal(await page.evaluate(() => localStorage.getItem("loopout-player-name")), "TESTPLAYER");
     await page.waitForFunction(() => Number(document.querySelector("#game-enemy-count")?.textContent || 0) > 0, null, { timeout: 10000 });
+    await page.waitForFunction(() => window.__loopOutHumanoidReady === true || window.__loopOutHumanoidFailed === true, null, { timeout: 20000 });
+    assert.equal(await page.evaluate(() => window.__loopOutHumanoidReady === true), true, `${device.name}: animated humanoid model did not load`);
+    if (device.name === "mobile") {
+      const spacing = await page.evaluate(() => {
+        const rect = id => { const r = document.getElementById(id).getBoundingClientRect(); return {left:r.left,right:r.right,top:r.top,bottom:r.bottom}; };
+        const stick=rect("stick-zone"),slide=rect("swipe-zone"),reload=rect("reload-touch"),fire=rect("fire-touch"),hud=rect("game-health"),controls=rect("mobile-controls");
+        return stick.right<=slide.left && slide.right<=reload.left && reload.right<=fire.left && hud.bottom<controls.top;
+      });
+      assert.equal(spacing, true, "mobile control zones and HUD must not overlap");
+    }
     assert.deepEqual(supabaseRequests, [], "game must not contact Supabase");
     assert.deepEqual(pageErrors, [], `${device.name}: browser runtime error`);
     const cachedAssets = await page.evaluate(async () => {
@@ -49,6 +59,7 @@ try {
     await page.waitForFunction(() => typeof window.startLoopOutGame === "function", null, { timeout: 15000 });
     await page.waitForFunction(() => Number(document.querySelector("#game-enemy-count")?.textContent || 0) > 0, null, { timeout: 15000 });
     assert.equal(await page.locator("#game-view").isVisible(), true, `${device.name}: game did not launch offline`);
+    await page.waitForFunction(() => window.__loopOutHumanoidReady === true, null, { timeout: 20000 });
     assert.deepEqual(pageErrors, [], `${device.name}: offline browser runtime error`);
     await context.close();
     console.log(`PASS: ${device.name} offline solo entry`);
