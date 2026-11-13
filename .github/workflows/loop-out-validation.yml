@@ -38,5 +38,9 @@ jobs:
           npx playwright install --with-deps chromium
           python3 -m http.server 4173 >/tmp/loop-out-server.log 2>&1 &
           SERVER_PID=$!
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           node tests/boot-smoke.mjs
