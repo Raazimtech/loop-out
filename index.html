@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="LOOP OUT">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="./manifest.webmanifest">
-<meta name="description" content="LOOP OUT — a browser-based tactical multiplayer shooter.">
+<meta name="description" content="LOOP OUT — an offline single-player survival shooter.">
 <title>LOOP OUT | Tactical Operations</title>
 <link rel="icon" type="image/png" href="./gamelogo.png">
 <link rel="shortcut icon" type="image/png" href="./gamelogo.png">
@@ -125,6 +125,19 @@ main{width:min(1280px,100% - 48px);padding:28px 0 38px}
 .footer{background:#080c10}
 @media(max-width:800px){main{width:calc(100% - 24px);padding:14px 0 22px}#auth-view{min-height:0;grid-template-columns:1fr;gap:12px}.briefing{min-height:220px;padding:20px}.briefing h2{font-size:38px;margin:10px 0}.briefing>p{font-size:11px;line-height:1.5}.feature-list{position:relative;inset:auto;margin-top:16px;grid-template-columns:repeat(2,1fr)}.feature{padding:8px}.feature b{font-size:13px}.auth{padding:20px}#character-view,#mode-view,#lobby-view{padding:16px}}
 
+
+/* Offline single-player survival presentation */
+body{background:#070b0f!important;background-image:none!important;overflow:hidden}
+#app{min-height:100dvh}
+#app.game-active main{width:100%;height:100dvh;min-height:0;padding:0;margin:0}
+#app.game-active .topbar,#app.game-active .footer{display:none}
+#game-view{position:fixed;z-index:40;inset:0;width:100vw;height:100dvh;min-height:0;border:0;margin:0;max-height:none}
+#game-canvas{width:100%;height:100%;touch-action:none}
+.name-box{display:block;padding:7px 10px}
+.name-box input{display:block;width:130px;max-width:25vw;margin-top:4px;padding:3px 5px;background:#101820;border:1px solid #6a777e;color:#fff;font:700 14px 'Barlow Condensed';letter-spacing:1px;text-transform:uppercase;outline:none}
+.name-box input:focus{border-color:var(--accent)}
+#game-exit{pointer-events:auto;min-height:38px;padding:0 13px;background:#141d25;border:1px solid #c8a66a;color:#fff;font-size:10px;letter-spacing:1px}
+#rotate-gate.active{z-index:1400}
 </style>
 </head>
 <body>
@@ -133,32 +146,16 @@ main{width:min(1280px,100% - 48px);padding:28px 0 38px}
 <div id="app">
 <header class="topbar"><div class="brand"><img class="brand-logo" src="./gamelogo.png" alt="LOOP OUT penguin logo"><div><div class="brand-name">LOOP OUT</div><div class="brand-sub">TACTICAL OPERATIONS</div></div></div><div class="top-status"><i class="dot"></i><span id="connection-label">SYSTEM STANDBY</span></div></header>
 <main>
-<section class="hero"><div><div class="eyebrow">TACTICAL FIRST-PERSON OPERATIONS / 001</div><h1>ENTER THE<br><span>OPERATION.</span></h1><p>A tactical first-person world built around positioning, awareness and teamwork. Create your callsign, select your operator and deploy when the battlefield is ready.</p></div><div class="hero-art"><div class="art-code">SECTOR 07 / CLASSIFIED</div><div class="art-label">FIELD OPERATIONS // LOOP OUT PROTOCOL</div></div></section>
-<section id="auth-view" class="auth-layout">
-<div class="panel briefing"><div class="eyebrow">MISSION BRIEFING</div><h2>NO TWO OPERATIONS ARE THE SAME.</h2><p>Build your operator identity now. The first release establishes player accounts, character identity and the two deployment queues. Live operator visibility is now being prototyped. Server-validated combat and AI opponents are still in development.</p><div class="feature-list"><div class="feature"><b>OPEN WORLD</b><span>Large-scale shared exploration</span></div><div class="feature"><b>SMALL ARENA</b><span>Compact close-quarters combat</span></div><div class="feature"><b>PLAYER IDENTITY</b><span>Your callsign and operator persist</span></div><div class="feature"><b>WEB DEPLOYMENT</b><span>Desktop and mobile browser support</span></div></div></div>
-<div class="panel auth"><h2>OPERATOR ACCESS</h2><p class="sub">Create a callsign or return to your account.</p><div class="tabs"><button class="tab active" id="signup-tab" type="button">CREATE ACCOUNT</button><button class="tab" id="login-tab" type="button">SIGN IN</button></div><form id="auth-form"><label class="field"><span>CALLSIGN / NICKNAME</span><input id="nickname" autocomplete="username" minlength="3" maxlength="16" pattern="[A-Za-z0-9_]+" placeholder="e.g. Ghost_07" required></label><label class="field"><span>PASSWORD</span><input id="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required></label><button class="primary" id="auth-submit" type="submit">CREATE OPERATOR</button><div class="error" id="auth-error" role="alert"></div></form><p class="fineprint">Use a unique password. This game uses Supabase authentication. Nicknames are public in-game identities; passwords are never stored in the game database as plain text.</p></div>
-</section>
-<section id="character-view" class="hidden"><div class="section-head"><div><div class="eyebrow">01 / OPERATOR CONFIGURATION</div><h2>CHOOSE YOUR OPERATOR</h2></div><div class="player-chip">CALLSIGN: <b id="callsign-display">—</b></div></div><div class="character-grid">
-<button class="character selected" data-character="recon"><div class="character-visual"></div><div class="card-copy"><b>RECON</b><p>Light field kit. Built for movement and scouting.</p></div><span class="select-mark">SELECTED</span></button>
-<button class="character" data-character="assault"><div class="character-visual"></div><div class="card-copy"><b>ASSAULT</b><p>Balanced operator configuration for direct engagements.</p></div><span class="select-mark">SELECT</span></button>
-<button class="character" data-character="support"><div class="character-visual"></div><div class="card-copy"><b>SUPPORT</b><p>Heavy field kit. A steadier, defensive profile.</p></div><span class="select-mark">SELECT</span></button>
-</div><div class="actions"><button class="primary" id="to-modes">CONFIRM OPERATOR</button></div></section>
-<section id="mode-view" class="hidden"><div class="section-head"><div><div class="eyebrow">02 / DEPLOYMENT SELECT</div><h2>SELECT YOUR MODE</h2></div><div class="player-chip">OPERATOR: <b id="mode-callsign">—</b></div></div><div class="mode-grid">
-<button class="mode selected" data-mode="open_world"><div class="mode-visual"></div><div class="card-copy"><b>OPEN WORLD</b><p>Explore a broad training environment with live operator visibility.</p></div></button>
-<button class="mode" data-mode="small_arena"><div class="mode-visual"></div><div class="card-copy"><b>SMALL ARENA</b><p>A compact combat zone designed for short, intense engagements.</p></div></button>
-</div><div class="actions"><button class="secondary" id="signout-main">SIGN OUT</button><button class="secondary" id="back-character">BACK</button><button class="primary" id="deploy">ENTER DEPLOYMENT</button></div></section>
-<section id="lobby-view" class="hidden panel lobby"><div class="eyebrow">03 / DEPLOYMENT QUEUE</div><h2 class="section-title" id="lobby-title">OPEN WORLD</h2><div class="lobby-box"><h3>DEPLOYMENT READY</h3><p>Your operator is connected to the training sector. Move, aim, fire, reload and engage active combatants. Networked player visibility is currently in preview.</p><div class="status-line"><i class="dot"></i><span id="lobby-status">Operator identity confirmed</span></div></div><div class="actions"><button class="secondary" id="back-modes">CHANGE MODE</button><button class="primary" id="signout">SIGN OUT</button></div></section>
-
-<section id="game-view" class="hidden" aria-label="LOOP OUT training range">
+<section id="game-view" aria-label="LOOP OUT training range">
  <canvas id="game-canvas"></canvas>
  <div class="game-help" id="game-help">CLICK THE FIELD TO LOCK MOUSE · WASD MOVE · MOUSE AIM · CLICK FIRE · R RELOAD</div>
  <div id="crosshair"></div>
  <div class="game-hud">
   <div class="hud-top">
-   <div class="hud-box"><small>LOOP OUT // TRAINING SECTOR</small><span id="game-mode-label">OPEN WORLD</span></div>
-   <div class="hud-box"><small>OPERATOR</small><span id="game-player-label">PLAYER</span></div>
-   <div class="hud-box"><small>PLAYERS IN ROOM</small><span class="hud-number" id="game-player-count">01</span></div>
-   <button id="game-exit" type="button">EXIT RANGE</button>
+   <div class="hud-box"><small>LOOP OUT // SURVIVAL</small><span id="game-mode-label">OPEN WORLD</span></div>
+   <label class="hud-box name-box"><small>PLAYER NAME</small><input id="game-player-label" maxlength="16" value="SURVIVOR" aria-label="Player name"></label>
+   <div class="hud-box"><small>THREATS</small><span class="hud-number" id="game-enemy-count">00</span></div>
+   <button id="game-exit" type="button">RESTART</button>
   </div>
   <div class="hud-bottom">
    <div class="hud-box"><small>HEALTH</small><span class="hud-number" id="game-health">100</span></div>
@@ -173,124 +170,40 @@ main{width:min(1280px,100% - 48px);padding:28px 0 38px}
 </section>
 </main><footer class="footer"><span>LOOP OUT // TACTICAL OPERATIONS</span><span>FIELD OPERATIONS // BROWSER EDITION</span></footer>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* LOOP OUT uses its namespaced profile table and realtime channels in the authorized Supabase project. */
-const SUPABASE_URL = "https://dpiwdhtbhwjgatvcfkcb.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_PSZnTEo74jObih_6TTpXVQ_tJwzTnXY";
-const USERNAME_DOMAIN = "players.blackout.invalid";
-const hasSupabaseConfig = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
-const supabase = hasSupabaseConfig && window.supabase ? window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY) : null;
-window.loopOutSupabase=supabase;
-let authMode = "signup";
-let currentUser = null;
-let currentProfile = null;
-let selectedCharacter = "recon";
-let selectedMode = "open_world";
-let introComplete = false;
 const $ = id => document.getElementById(id);
-const views = ["auth-view","character-view","mode-view","lobby-view","game-view"];
-function updateRotateGate(){const gate=$("rotate-gate");const portrait=matchMedia("(pointer: coarse) and (orientation: portrait)").matches;gate.classList.toggle("active",portrait);document.documentElement.classList.toggle("mobile-portrait",portrait);}
-function showView(id){views.forEach(v=>$(v).classList.toggle("hidden",v!==id));$("app").classList.toggle("game-active",id==="game-view");updateRotateGate();}
-window.addEventListener("orientationchange",updateRotateGate);window.addEventListener("resize",updateRotateGate);
-function setError(message){$("auth-error").textContent=message||"";}
+let selectedMode="open_world";
+function updateRotateGate(){
+ const portrait=matchMedia("(pointer: coarse) and (orientation: portrait)").matches;
+ $("rotate-gate").classList.toggle("active",portrait);
+}
 async function requestLandscape(){
  if(!matchMedia("(pointer: coarse)").matches)return;
- try{if(screen.orientation?.lock)await screen.orientation.lock("landscape");}catch(_){/* iOS Safari may reject orientation lock; the rotate gate remains active. */}
+ try{if(screen.orientation?.lock)await screen.orientation.lock("landscape");}catch(_){}
 }
-function enterBoot(){
- if(introComplete)return;
- introComplete=true;
- const splash=$("raazim-splash");
- if(splash){splash.classList.add("leaving");splash.setAttribute("aria-hidden","true");}
- // Always reveal a usable entry screen even if session restoration or a module fails.
- showView("auth-view");
- if(window.__loopOutSession&&currentUser&&currentProfile)routeSignedIn();
- if(splash)setTimeout(()=>splash.remove(),1000);
+function startSoloGame(){
+ $("raazim-splash")?.classList.add("leaving");
+ $("app").classList.add("game-active");
+ $("game-view").classList.remove("hidden");
+ $("connection-label").textContent="OFFLINE SURVIVAL";
+ $("game-player-label").value=localStorage.getItem("loopout-player-name")||"SURVIVOR";
+ if(window.startLoopOutGame)window.startLoopOutGame(selectedMode);
+ setTimeout(()=>$("raazim-splash")?.remove(),1000);
 }
-requestLandscape();
-updateRotateGate();
+$("game-player-label").addEventListener("input",e=>{
+ localStorage.setItem("loopout-player-name",e.target.value.slice(0,16));
+});
+$("game-exit").textContent="RESTART";
+$("game-exit").addEventListener("click",()=>{
+ if(window.stopLoopOutGame)window.stopLoopOutGame();
+ if(window.startLoopOutGame)window.startLoopOutGame(selectedMode);
+});
+requestLandscape();updateRotateGate();
+window.addEventListener("orientationchange",()=>{updateRotateGate();requestLandscape();});
+window.addEventListener("resize",updateRotateGate);
 window.addEventListener("load",requestLandscape,{once:true});
 window.addEventListener("touchstart",requestLandscape,{once:true,passive:true});
-setTimeout(enterBoot,2000);
-function routeSignedIn(){
- if(!currentUser||!currentProfile)return;
- window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:currentProfile.character_id};
- $("callsign-display").textContent=currentProfile.username;$("mode-callsign").textContent=currentProfile.username;
- showView("character-view");
-}
-
-function usernameEmail(name){return name.trim().toLowerCase()+"@"+USERNAME_DOMAIN;}
-async function requestLoopOutAuth(action,nickname,password){
- if(!supabase)throw new Error("Authentication service is unavailable.");
- const {data,error}=await supabase.functions.invoke("loop-out-auth",{
-  body:{action,nickname,password}
- });
- if(error){
-  const details=error.context?.body;
-  let message=error.message||"Authentication service request failed.";
-  if(typeof details==="string"){try{message=JSON.parse(details).error||message;}catch(_){}}
-  else if(details&&typeof details==="object")message=details.error||message;
-  throw new Error(message);
- }
- if(data?.error)throw new Error(data.error);
- return data||{};
-}
-function setAuthMode(mode){authMode=mode;$("signup-tab").classList.toggle("active",mode==="signup");$("login-tab").classList.toggle("active",mode==="login");$("auth-submit").textContent=mode==="signup"?"CREATE OPERATOR":"SIGN IN";$("password").autocomplete=mode==="signup"?"new-password":"current-password";setError("");}
-$("signup-tab").addEventListener("click",()=>setAuthMode("signup"));
-$("login-tab").addEventListener("click",()=>setAuthMode("login"));
-$("auth-form").addEventListener("submit",async e=>{
- e.preventDefault();setError("");
- const nickname=$("nickname").value.trim();const password=$("password").value;
- if(!/^[A-Za-z0-9_]{3,16}$/.test(nickname)){setError("Use 3–16 letters, numbers or underscores for your callsign.");return;}
- if(password.length<8||password.length>72){setError("Password must contain 8–72 characters.");return;}
- if(!supabase){setError("Authentication service is unavailable. Please try again later.");return;}
- const btn=$("auth-submit");btn.disabled=true;btn.textContent="CONNECTING…";
- try{
-  if(authMode==="signup"){
-   await requestLoopOutAuth("signup",nickname,password);
-  }
-  let result=await supabase.auth.signInWithPassword({email:usernameEmail(nickname),password});
-  if(result.error&&/email not confirmed/i.test(result.error.message||"")){
-   await requestLoopOutAuth("confirm_legacy",nickname,password);
-   result=await supabase.auth.signInWithPassword({email:usernameEmail(nickname),password});
-  }
-  if(result.error)throw result.error;
-  if(!result.data.session||!result.data.user)throw new Error("Supabase did not return a signed-in session. Please try again.");
-  currentUser=result.data.user;
-  await loadProfile(nickname);
-  window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:currentProfile.character_id};
-  $("callsign-display").textContent=currentProfile.username;
-  $("mode-callsign").textContent=currentProfile.username;
-  setError("");
-  showView("character-view");
- }catch(err){
-  const message=String(err?.message||"");
-  if(/invalid login credentials/i.test(message))setError("Incorrect callsign or password. Check both and try again.");
-  else if(/already has an account/i.test(message))setError(message);
-  else setError(message||"Authentication failed. Please try again.");
- }finally{
-  btn.disabled=false;
-  btn.textContent=authMode==="signup"?"CREATE OPERATOR":"SIGN IN";
- }
-});
-async function loadProfile(fallbackName){
- const {data,error}=await supabase.from("blackout_player_profiles").select("id,username,character_id").eq("id",currentUser.id).single();
- if(error)throw new Error("Player profile unavailable: "+error.message);
- currentProfile=data;
- selectedCharacter=data.character_id||"recon";
- document.querySelectorAll(".character").forEach(card=>{const on=card.dataset.character===selectedCharacter;card.classList.toggle("selected",on);card.querySelector(".select-mark").textContent=on?"SELECTED":"SELECT";});
-}
-document.querySelectorAll(".character").forEach(card=>card.addEventListener("click",()=>{selectedCharacter=card.dataset.character;document.querySelectorAll(".character").forEach(c=>{const on=c===card;c.classList.toggle("selected",on);c.querySelector(".select-mark").textContent=on?"SELECTED":"SELECT";});}));
-$("to-modes").addEventListener("click",async()=>{if(supabase&&currentUser){const {error}=await supabase.from("blackout_player_profiles").update({character_id:selectedCharacter}).eq("id",currentUser.id);if(error){alert("Could not save operator: "+error.message);return;}currentProfile={...currentProfile,character_id:selectedCharacter};window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:selectedCharacter};}showView("mode-view");});
-document.querySelectorAll(".mode").forEach(card=>card.addEventListener("click",()=>{selectedMode=card.dataset.mode;document.querySelectorAll(".mode").forEach(c=>c.classList.toggle("selected",c===card));}));
-$("back-character").addEventListener("click",()=>showView("character-view"));
-$("deploy").addEventListener("click",()=>{showView("game-view");$("game-mode-label").textContent=selectedMode==="open_world"?"OPEN WORLD":"SMALL ARENA";$("game-player-label").textContent=currentProfile?.username||"OPERATOR";if(window.startLoopOutGame)window.startLoopOutGame(selectedMode);else $("game-help").textContent="3D ENGINE LOADING…";});
-$("back-modes").addEventListener("click",()=>showView("mode-view"));
-$("game-exit").addEventListener("click",()=>{if(window.stopLoopOutGame)window.stopLoopOutGame();showView("mode-view");});
-$("signout").addEventListener("click",async()=>{if(supabase)await supabase.auth.signOut();currentUser=null;currentProfile=null;showView("auth-view");});
-if(!hasSupabaseConfig){$("connection-label").textContent="DATABASE SETUP PENDING";}
-else{$("connection-label").textContent="AUTH SERVICE READY";supabase.auth.getSession().then(async({data})=>{if(data.session){currentUser=data.session.user;try{await loadProfile();window.__loopOutSession=true;if(introComplete)routeSignedIn();}catch(e){console.error("Session restore failed",e);}}});supabase.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){currentUser=null;currentProfile=null;window.__loopOutSession=false;}else if(event==="SIGNED_IN"&&session){currentUser=session.user;window.__loopOutSession=true;}});}
+setTimeout(startSoloGame,1800);
 </script>
 <script type="importmap">
 {
