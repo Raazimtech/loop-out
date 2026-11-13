@@ -97,7 +97,7 @@ function damagePlayer(amount){
  const now=performance.now();if(now<damageGraceUntil)return;
  lastDamageAt=now;playerHealth=Math.max(0,playerHealth-amount);
  $("game-health").textContent=String(playerHealth).padStart(3,"0");
- const meter=$("health-fill");if(meter)meter.style.width=playerHealth+"%";
+ const meter=$("health-fill");if(meter){meter.style.width=playerHealth+"%";meter.style.background=playerHealth<30?"#d16b62":playerHealth<60?"#c8a66a":"#8fae91";}
  playHitSound();if(navigator.vibrate)navigator.vibrate([65,35,45]);
  const flash=$("damage-flash");if(flash){flash.classList.remove("hit");void flash.offsetWidth;flash.classList.add("hit");}
  if(playerHealth===0){
@@ -106,7 +106,7 @@ function damagePlayer(amount){
  }
 }
 function updateHealthRegen(dt){
- if(playerHealth<100&&performance.now()-lastDamageAt>6500){playerHealth=Math.min(100,playerHealth+dt*4.2);$("game-health").textContent=String(Math.ceil(playerHealth)).padStart(3,"0");const meter=$("health-fill");if(meter)meter.style.width=playerHealth+"%";}
+ if(playerHealth<100&&performance.now()-lastDamageAt>6500){playerHealth=Math.min(100,playerHealth+dt*4.2);$("game-health").textContent=String(Math.ceil(playerHealth)).padStart(3,"0");const meter=$("health-fill");if(meter){meter.style.width=playerHealth+"%";meter.style.background=playerHealth<30?"#d16b62":playerHealth<60?"#c8a66a":"#8fae91";}}
 }
 function playShotSound(){
  try{
@@ -185,7 +185,7 @@ function buildWorld(mode){
  const sun=new THREE.DirectionalLight(0xffd59b,arena?2.2:3.35);sun.position.set(-110,145,90);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-150;sun.shadow.camera.right=150;sun.shadow.camera.top=150;sun.shadow.camera.bottom=-150;sun.shadow.bias=-.00018;scene.add(sun);
  if(!arena){const sunDisc=new THREE.Mesh(new THREE.SphereGeometry(11,20,16),new THREE.MeshBasicMaterial({color:0xffd99c}));sunDisc.position.set(-180,150,-240);scene.add(sunDisc);}
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(arena?64:1200,arena?64:1200),mat(arena?0x59645b:0x756e58));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
- const grid=new THREE.GridHelper(arena?64:180,arena?32:90,0x839083,0x667568);grid.position.y=.012;grid.material.transparent=true;grid.material.opacity=.12;scene.add(grid);
+ const grid=new THREE.GridHelper(arena?64:1200,arena?32:200,0x839083,0x667568);grid.position.y=.012;grid.material.transparent=true;grid.material.opacity=.12;scene.add(grid);
  const concrete=mat(0x777e7c),dark=mat(0x343d40),sand=mat(0x9b8b6d),metal=mat(0x4a5559),green=mat(0x46564a);
  if(arena){
   // Compact close-quarters map with short lanes and hard cover.
