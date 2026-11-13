@@ -15,6 +15,15 @@ LOOP OUT is a browser-based first-person shooter built with HTML, CSS, JavaScrip
 - Landscape-first mobile game layout, safe-area-aware HUD and touch-oriented rendering quality.
 - Kenney CC0 environment assets; see `assets/blackout/CREDITS.md`.
 
+## Install as an app
+
+LOOP OUT is configured as a Progressive Web App (PWA). Open the published site over HTTPS:
+
+- **iPhone/iPad:** open the site in Safari, tap Share, then choose **Add to Home Screen**. The installed icon uses the official `gamelogo.png` penguin.
+- **Android/desktop Chromium browsers:** open the site and use the browser's **Install app** or **Add to Home Screen** option when offered.
+
+The installed app opens in standalone mode with the same penguin icon and LOOP OUT app name. The service worker caches the app shell; gameplay still requires an internet connection for Supabase authentication, multiplayer presence, and externally hosted Three.js resources.
+
 ## Controls
 
 **Desktop:** WASD to move, Shift to sprint, mouse to aim, click to fire, R to reload.
