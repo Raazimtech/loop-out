@@ -29,8 +29,10 @@ jobs:
         run: |
           grep -q 'startLoopOutGame' game.js
           grep -q 'stopLoopOutGame' game.js
-          grep -q 'const topic="loopout:"+selectedMode' game.js
-          grep -q 'blackout_player_profiles' index.html
+          grep -q 'function updateEnemies' game.js
+          grep -q 'kind:"zombie"' game.js
+          grep -q 'kind:"drone"' game.js
+          ! grep -qi 'supabase\|auth-form\|sign in\|create account' index.html game.js
           grep -q 'LOOP OUT' index.html
           grep -q '>RAAZIM</div>' index.html
           ! grep -q 'boot-enter\|TAP TO ENTER' index.html
