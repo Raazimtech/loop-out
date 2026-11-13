@@ -21,7 +21,7 @@ Implemented in this branch:
 - Authenticated Supabase Realtime private channels for the two modes: `loopout:open_world` and `loopout:small_arena`.
 - Presence tracking for connected players.
 - Position and facing broadcasts at approximately 10 updates per second.
-- Basic remote operator avatars with smoothed movement.
+- Basic remote operator avatars with nameplates and smoothed movement.
 - Player count and connection status in the HUD.
 - Realtime authorization policies scoped only to the two LOOP OUT channel names.
 
