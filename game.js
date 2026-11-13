@@ -30,10 +30,10 @@ function makeTarget(x,z){
 function makeEnemy(x,z,index){
  const drone=index%3===2,group=new THREE.Group();group.position.set(x,0,z);const parts=[];
  if(drone){
-  const shell=new THREE.Mesh(new THREE.SphereGeometry(.48,16,12),mat(0x39464e,.45));shell.position.y=2.25;group.add(shell);parts.push(shell);
-  const core=new THREE.Mesh(new THREE.SphereGeometry(.2,12,10),new THREE.MeshStandardMaterial({color:0xe24c40,emissive:0x861b13,emissiveIntensity:1.2}));core.position.y=2.25;group.add(core);parts.push(core);
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(.57,.055,8,24),mat(0x9aa6aa,.35));ring.position.y=2.25;ring.rotation.x=Math.PI/2;group.add(ring);parts.push(ring);
-  for(let n=0;n<4;n++){const angle=n*Math.PI/2,arm=new THREE.Mesh(new THREE.BoxGeometry(.9,.07,.09),mat(0x59656a,.5));arm.position.set(Math.cos(angle)*.48,2.28,Math.sin(angle)*.48);arm.rotation.y=-angle;group.add(arm);parts.push(arm);const rotor=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.045,12),mat(0x171d21,.45));rotor.position.set(Math.cos(angle)*.9,2.32,Math.sin(angle)*.9);group.add(rotor);parts.push(rotor);}
+  const shell=new THREE.Mesh(new THREE.SphereGeometry(.48,16,12),mat(0x39464e,.45));shell.position.y=0;group.add(shell);parts.push(shell);
+  const core=new THREE.Mesh(new THREE.SphereGeometry(.2,12,10),new THREE.MeshStandardMaterial({color:0xe24c40,emissive:0x861b13,emissiveIntensity:1.2}));core.position.y=0;group.add(core);parts.push(core);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.57,.055,8,24),mat(0x9aa6aa,.35));ring.position.y=0;ring.rotation.x=Math.PI/2;group.add(ring);parts.push(ring);
+  for(let n=0;n<4;n++){const angle=n*Math.PI/2,arm=new THREE.Mesh(new THREE.BoxGeometry(.9,.07,.09),mat(0x59656a,.5));arm.position.set(Math.cos(angle)*.48,.03,Math.sin(angle)*.48);arm.rotation.y=-angle;group.add(arm);parts.push(arm);const rotor=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.045,12),mat(0x171d21,.45));rotor.position.set(Math.cos(angle)*.9,.07,Math.sin(angle)*.9);group.add(rotor);parts.push(rotor);}
   group.userData={kind:"drone",alive:true,hp:100,parts,spawn:new THREE.Vector3(x,0,z),nextAttack:performance.now()+1300+index*170,phase:index*1.6};
  }else{
   const skin=mat(0x657b56),dark=mat(0x29342b),cloth=mat(0x39463a),eye=new THREE.MeshStandardMaterial({color:0xe24c40,emissive:0x7e140c,emissiveIntensity:1.1});
@@ -61,7 +61,7 @@ function updateEnemies(dt){
    enemy.rotation.y=Math.atan2(dx,dz);
    if(dist<23&&now>d.nextAttack){
     d.nextAttack=now+1850+Math.random()*700;
-    const material=new THREE.LineBasicMaterial({color:0xff5147,transparent:true,opacity:.85}),geometry=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(enemy.position.x,2.25,enemy.position.z),new THREE.Vector3(camera.position.x,1.3,camera.position.z)]),beam=new THREE.Line(geometry,material);scene.add(beam);setTimeout(()=>{scene?.remove(beam);geometry.dispose();material.dispose();},160);
+    const material=new THREE.LineBasicMaterial({color:0xff5147,transparent:true,opacity:.85}),geometry=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(enemy.position.x,enemy.position.y+.2,enemy.position.z),new THREE.Vector3(camera.position.x,1.3,camera.position.z)]),beam=new THREE.Line(geometry,material);scene.add(beam);setTimeout(()=>{scene?.remove(beam);geometry.dispose();material.dispose();},160);
     damagePlayer(8+Math.floor(Math.random()*7));
    }
   }
@@ -195,7 +195,7 @@ function shoot(){
  const hit=raycaster.intersectObjects(meshes,false)[0];
  if(hit){
   const enemy=enemies.find(e=>e.userData.parts.includes(hit.object));
-  if(enemy){enemy.userData.hp-=50;if(enemy.userData.hp<=0){enemy.userData.alive=false;enemy.userData.respawnAt=performance.now()+4200;enemy.visible=false;score++;$("game-score").textContent=String(score).padStart(2,"0");}}
+  if(enemy){enemy.userData.hp-=50;if(enemy.userData.hp<=0){enemy.userData.alive=false;enemy.userData.respawnAt=performance.now()+4200;enemy.visible=false;score++;reserve=Math.min(240,reserve+8);updateHud();$("game-score").textContent=String(score).padStart(2,"0");}}
   else{const target=targets.find(t=>t.userData.parts.includes(hit.object));if(target){target.userData.alive=false;target.userData.respawn=performance.now()+2400;target.visible=false;score++;$("game-score").textContent=String(score).padStart(2,"0");}}
  }
 }
