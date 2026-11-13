@@ -125,8 +125,10 @@ function showView(id){views.forEach(v=>$(v).classList.toggle("hidden",v!==id));$
 function setError(message){$("auth-error").textContent=message||"";}
 async function requestLandscape(){
  if(!matchMedia("(pointer: coarse)").matches)return;
- try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen();}catch(_){}
- try{if(screen.orientation?.lock)await screen.orientation.lock("landscape");}catch(_){}
+ const requests=[];
+ try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)requests.push(document.documentElement.requestFullscreen());}catch(_){}
+ try{if(screen.orientation?.lock)requests.push(screen.orientation.lock("landscape"));}catch(_){}
+ await Promise.allSettled(requests);
 }
 function enterBoot(){
  introComplete=true;
