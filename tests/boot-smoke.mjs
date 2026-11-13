@@ -19,7 +19,7 @@ try {
     const pageErrors = [];
     page.on("pageerror", error => pageErrors.push(error.message));
     await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
-    await page.waitForFunction(() => typeof window.startLoopOutGame === "function", { timeout: 30000 });
+    await page.waitForFunction(() => typeof window.startLoopOutGame === "function", null, { timeout: 30000 });
     assert.deepEqual(pageErrors, [], `${device.name}: browser runtime error`);
     const enter = page.locator("#boot-enter");
     await enter.waitFor({ state: "visible" });
