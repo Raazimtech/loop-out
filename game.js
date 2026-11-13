@@ -145,7 +145,7 @@ function buildWorld(mode){
  const sight=new THREE.Mesh(new THREE.BoxGeometry(.08,.07,.12),gunEdge);sight.position.set(.34,-.16,-.62);weaponModel.add(sight);
  muzzleFlash=new THREE.Mesh(new THREE.SphereGeometry(.085,8,8),new THREE.MeshBasicMaterial({color:0xffc56c}));muzzleFlash.position.set(.34,-.23,-1.28);muzzleFlash.visible=false;weaponModel.add(muzzleFlash);
  camera.add(weaponModel);
- if(!renderer){renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:"high-performance"});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;}renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
+ if(!renderer){renderer=new THREE.WebGLRenderer({canvas,antialias:!matchMedia("(pointer: coarse)").matches,powerPreference:"high-performance",stencil:false,depth:true});renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia("(pointer: coarse)").matches?1.25:1.6));renderer.shadowMap.enabled=!matchMedia("(pointer: coarse)").matches;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;}renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
  const hemi=new THREE.HemisphereLight(0xdce6e5,0x303a32,2.1);scene.add(hemi);
  const sun=new THREE.DirectionalLight(0xffe5c2,2.2);sun.position.set(-25,45,20);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-70;sun.shadow.camera.right=70;sun.shadow.camera.top=70;sun.shadow.camera.bottom=-70;scene.add(sun);
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(arena?64:180,arena?64:180),mat(0x59645b));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
@@ -181,9 +181,9 @@ function buildWorld(mode){
  controls.addEventListener("lock",()=>{$("game-help").style.display="none";});
  controls.addEventListener("unlock",()=>{if(running)$("game-help").style.display="block";});
  if(!clickBound){renderer.domElement.addEventListener("click",()=>{if(!matchMedia("(pointer: coarse)").matches&&!controls.isLocked)controls.lock();});clickBound=true;}
- if(!resizeBound){window.addEventListener("resize",resize);resizeBound=true;}
+ if(!resizeBound){window.addEventListener("resize",resize,{passive:true});window.addEventListener("orientationchange",()=>setTimeout(resize,180),{passive:true});window.visualViewport?.addEventListener("resize",resize,{passive:true});resizeBound=true;}
 }
-function resize(){if(!renderer||!camera)return;const w=canvas.clientWidth,h=canvas.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);}
+function resize(){if(!renderer||!camera)return;const w=canvas.clientWidth,h=canvas.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia("(pointer: coarse)").matches?1.25:1.6));}
 function blocked(x,z){return obstacles.some(o=>Math.abs(x-o.x)<o.w/2+.42&&Math.abs(z-o.z)<o.d/2+.42);}
 function move(dt){
  const forward=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-stick.y;
@@ -227,6 +227,7 @@ function bindControls(){
  canvas.addEventListener("touchend",()=>touchLook=null);
 }
 window.startLoopOutGame=function(mode="open_world"){
+ try{if(screen.orientation?.lock)screen.orientation.lock("landscape").catch(()=>{});}catch(_){}
  selectedMode=mode;if(running)stopGame();running=true;ammo=30;reserve=120;score=0;reloading=false;yaw=0;pitch=0;stick={x:0,y:0};keys={};$("game-help").textContent=matchMedia("(pointer: coarse)").matches?"LEFT STICK MOVE · DRAG TO AIM · FIRE / RELOAD":"CLICK FIELD TO LOCK MOUSE · WASD MOVE · MOUSE AIM · CLICK FIRE · R RELOAD";
  $("game-score").textContent="00";$("game-health").textContent="100";updateHud();
  if(!renderer||worldMode!==mode){buildWorld(mode);worldMode=mode;}else{camera.position.set(0,1.7,mode==="small_arena"?20:12);camera.rotation.set(0,0,0);targets.forEach(t=>{t.visible=true;t.userData.alive=true;});}
