@@ -39,7 +39,7 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 @media(pointer:coarse),(max-width:800px){#mobile-controls{display:flex}.game-help{top:76px;font-size:9px}.hud-box{padding:8px 10px}.game-hud{padding:10px}.hud-top{flex-wrap:wrap;gap:6px}.hud-top #game-exit{margin-left:auto}#game-view{min-height:560px;height:75svh}}
 
 /* LOOP OUT automatic boot sequence and landscape-first app shell */
-#raazim-splash{position:fixed;z-index:1300;inset:0;display:grid;place-items:center;background:#05080b;overflow:hidden;transition:opacity .65s ease,visibility .65s ease}
+#raazim-splash{position:fixed;z-index:1300;inset:0;display:grid;place-items:center;background:#05080b;overflow:hidden;transition:opacity 1s ease,visibility 1s ease}
 #raazim-splash:before{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#c8a66a12 50%,transparent 65%),radial-gradient(ellipse at 50% 55%,#1d2932 0,transparent 58%)}
 #raazim-splash.leaving{opacity:0;visibility:hidden;pointer-events:none}
 .boot-inner{position:relative;text-align:center;display:grid;justify-items:center;gap:18px;padding:24px}
@@ -86,7 +86,7 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 </style>
 </head>
 <body>
-<div id="raazim-splash" aria-label="LOOP OUT"><div class="boot-inner"><div class="boot-wordmark">LOOP OUT</div><div class="boot-rule"></div><div class="boot-sub">RAZIM</div></div></div>
+<div id="raazim-splash" aria-label="LOOP OUT"><div class="boot-inner"><div class="boot-wordmark">LOOP OUT</div><div class="boot-rule"></div><div class="boot-sub">RAAZIM</div></div></div>
 <div id="rotate-gate"><div class="rotate-content"><div class="rotate-icon">↻</div><b>ROTATE YOUR DEVICE</b><p>LOOP OUT is designed for landscape play. Turn your phone sideways to enter the operation.</p></div></div>
 <div id="app">
 <header class="topbar"><div class="brand"><div class="brand-mark">L</div><div><div class="brand-name">LOOP OUT</div><div class="brand-sub">TACTICAL OPERATIONS</div></div></div><div class="top-status"><i class="dot"></i><span id="connection-label">SYSTEM STANDBY</span></div></header>
@@ -162,13 +162,13 @@ function enterBoot(){
  const splash=$("raazim-splash");
  if(splash){splash.classList.add("leaving");splash.setAttribute("aria-hidden","true");}
  if(window.__loopOutSession&&currentUser&&currentProfile){routeSignedIn();}else{showView("auth-view");}
- if(splash)setTimeout(()=>splash.remove(),750);
+ if(splash)setTimeout(()=>splash.remove(),1000);
 }
 requestLandscape();
 updateRotateGate();
 window.addEventListener("load",requestLandscape,{once:true});
 window.addEventListener("touchstart",requestLandscape,{once:true,passive:true});
-setTimeout(enterBoot,1800);
+setTimeout(enterBoot,1000);
 function routeSignedIn(){
  if(!currentUser||!currentProfile)return;
  window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:currentProfile.character_id};
