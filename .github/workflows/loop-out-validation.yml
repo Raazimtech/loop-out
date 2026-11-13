@@ -1,0 +1,35 @@
+name: LOOP OUT validation
+on:
+  push:
+    branches: [loop-out-stage-2-3]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check Three.js module syntax
+        run: node --input-type=module --check < game.js
+      - name: Extract and check inline application script
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path("index.html").read_text()
+          start = source.index("<script>") + len("<script>")
+          end = source.index("</script>", start)
+          Path("/tmp/loop-out-inline.js").write_text(source[start:end])
+          PY
+          node --check /tmp/loop-out-inline.js
+      - name: Verify required game entrypoints
+        run: |
+          grep -q 'startLoopOutGame' game.js
+          grep -q 'stopLoopOutGame' game.js
+          grep -q 'loopout:open_world' game.js
+          grep -q 'loopout:small_arena' game.js
+          grep -q 'blackout_player_profiles' index.html
+          grep -q 'RAA<span>Z</span>IM' index.html
