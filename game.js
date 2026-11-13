@@ -108,7 +108,7 @@ function bindControls(){
  canvas.addEventListener("touchend",()=>touchLook=null);
 }
 window.startBlackoutGame=function(mode="open_world"){
- selectedMode=mode;if(running)stopGame();running=true;ammo=30;reserve=120;score=0;reloading=false;yaw=0;pitch=0;stick={x:0,y:0};keys={};
+ selectedMode=mode;if(running)stopGame();running=true;ammo=30;reserve=120;score=0;reloading=false;yaw=0;pitch=0;stick={x:0,y:0};keys={};$("game-help").textContent=matchMedia("(pointer: coarse)").matches?"LEFT STICK MOVE · DRAG TO AIM · FIRE / RELOAD":"CLICK FIELD TO LOCK MOUSE · WASD MOVE · MOUSE AIM · CLICK FIRE · R RELOAD";
  $("game-score").textContent="00";$("game-health").textContent="100";updateHud();
  if(!renderer||worldMode!==mode){buildWorld(mode);worldMode=mode;}else{camera.position.set(0,1.7,mode==="small_arena"?20:12);camera.rotation.set(0,0,0);targets.forEach(t=>{t.visible=true;t.userData.alive=true;});}
  resize();clock.start();animate();
