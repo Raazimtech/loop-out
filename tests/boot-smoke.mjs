@@ -36,7 +36,7 @@ try {
     , null, { timeout: 10000 });
     assert.equal(await page.locator("#auth-view").isVisible(), true, `${device.name}: automatic splash did not reveal account screen`);
     assert.equal(await page.locator("#raazim-splash").locator(".boot-wordmark").textContent(), "LOOP OUT");
-    assert.equal(await page.locator("#raazim-splash").locator(".boot-sub").textContent(), "RAZIM");
+    assert.equal(await page.locator("#raazim-splash").locator(".boot-sub").textContent(), "RAAZIM");
     assert.equal(await page.locator("#rotate-gate").isVisible(), false, `${device.name}: rotate gate blocked landscape app`);
     assert.equal(await page.locator("#boot-enter").count(), 0, "tap-to-enter control must not exist");
     await context.close();
