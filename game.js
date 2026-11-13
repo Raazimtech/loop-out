@@ -107,7 +107,9 @@ function loadZombieAsset(){
  assetLoader.load(ZOMBIE_MODEL_URL,gltf=>{
   zombieTemplate=gltf;zombieAssetLoading=false;
   enemies.forEach(enemy=>attachZombieModel(enemy,gltf));
- },undefined,()=>{zombieAssetLoading=false;});
+  window.__loopOutHumanoidReady=true;
+  window.__loopOutHumanoidCount=enemies.filter(enemy=>enemy.userData.kind==="zombie"&&enemy.userData.model).length;
+ },undefined,()=>{zombieAssetLoading=false;window.__loopOutHumanoidFailed=true;});
 }
 function updateEnemies(dt){
  const now=performance.now();
@@ -311,8 +313,8 @@ function buildWorld(mode){
   for(let i=0;i<12;i++){const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,1.1,12),mat(0x59645e));barrel.position.set((i%4)*5-7,.55,-10-Math.floor(i/4)*5);barrel.castShadow=true;scene.add(barrel);obstacles.push({x:barrel.position.x,z:barrel.position.z,w:.9,d:.9});}
   for(let i=0;i<7;i++)makeTarget(-18+i*6,-39-(i%2)*3);
   for(let i=0;i<4;i++)makeTarget(-32+i*7,4);
-  for(let i=0;i<24;i++){const a=i*2.399,r=34+(i%5)*15;makeEnemy(Math.cos(a)*r,Math.sin(a)*r,i);}
-  camera.position.set(0,1.7,12);addForest(scene,190,260);
+  for(let i=0;i<18;i++){const a=i*2.399,r=38+(i%5)*17;makeEnemy(Math.cos(a)*r,Math.sin(a)*r,i);}
+  camera.position.set(0,1.7,12);addForest(scene,matchMedia("(pointer: coarse)").matches?72:118,260);
  }
 
  loadEnvironmentAssets(scene,arena);
