@@ -168,9 +168,14 @@ function loadEnvironmentAssets(sceneRef,arena){
  }
 }
 
+function disposeWorld(){
+ if(controls)controls.disconnect();
+ if(scene){scene.traverse(node=>{if(node.geometry)node.geometry.dispose();if(node.material){const materials=Array.isArray(node.material)?node.material:[node.material];materials.forEach(m=>{if(m.map)m.map.dispose();m.dispose();});}});scene.clear();}
+ targets=[];bots=[];obstacles=[];remotePlayers.clear();
+}
 function buildWorld(mode){
- const arena=mode==="small_arena";obstacles=[];targets=[];bots=[];if(controls)controls.disconnect();
- scene=new THREE.Scene();scene.background=new THREE.Color(0x9aa5a3);scene.fog=new THREE.Fog(0x9aa5a3,35,arena?65:125);
+ if(scene)disposeWorld();
+ const arena=mode==="small_arena";obstacles=[];targets=[];bots=[];scene=new THREE.Scene();scene.background=new THREE.Color(0x9aa5a3);scene.fog=new THREE.Fog(0x9aa5a3,35,arena?65:125);
  camera=new THREE.PerspectiveCamera(76,canvas.clientWidth/canvas.clientHeight,.1,250);camera.position.set(0,1.7,12);camera.rotation.order="YXZ";scene.add(camera);
  weaponModel=new THREE.Group();
  const gunMetal=mat(0x242b30,.55),gunEdge=mat(0x59636a,.5),gunGrip=mat(0x303a35,.9);
