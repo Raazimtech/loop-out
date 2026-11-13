@@ -81,8 +81,8 @@ function updateEnemies(dt){
    if(dist<1.9&&now>d.nextAttack){d.nextAttack=now+2100;damagePlayer(6);}
    enemy.rotation.y=Math.atan2(dx,dz);
    const swing=Math.sin(now*.009+d.phase)*.12;
-   if(d.parts[5])d.parts[5].rotation.z=-.45+swing;
-   if(d.parts[6])d.parts[6].rotation.z=.45-swing;
+   if(d.parts[8])d.parts[8].rotation.z=-.32+swing;
+   if(d.parts[9])d.parts[9].rotation.z=.32-swing;
   }else{
    enemy.position.y=THREE.MathUtils.lerp(enemy.position.y,2.7+Math.sin(now*.002+d.phase)*.28,Math.min(1,dt*3));
    if(dist>4&&dist<115){const nx=enemy.position.x+dx/Math.max(dist,.01)*3.1*dt,nz=enemy.position.z+dz/Math.max(dist,.01)*3.1*dt;if(!blocked(nx,nz)){enemy.position.x=nx;enemy.position.z=nz;}}
@@ -115,7 +115,7 @@ function damagePlayer(amount){
  const flash=$("damage-flash");if(flash){flash.classList.remove("hit");void flash.offsetWidth;flash.classList.add("hit");}
  if(playerHealth===0){
   playerHealth=100;camera.position.set(0,1.7,selectedMode==="small_arena"?20:12);camera.rotation.set(0,0,0);yaw=0;pitch=0;moveVelocity.set(0,0,0);damageGraceUntil=now+1800;
-  $("game-health").textContent="100";if(meter)meter.style.width="100%";$("game-help").textContent="OVERRUN · RESPAWN COMPLETE";updateHud();
+  $("game-health").textContent="100";if(meter){meter.style.width="100%";meter.style.background="#8fae91";}$("game-help").textContent="OVERRUN · RESPAWN COMPLETE";updateHud();
  }
 }
 function updateHealthRegen(dt){
