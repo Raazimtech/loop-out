@@ -34,7 +34,8 @@ try {
     if (device.name === "mobile") {
       const spacing = await page.evaluate(() => {
         const rect = id => { const r = document.getElementById(id).getBoundingClientRect(); return {left:r.left,right:r.right,top:r.top,bottom:r.bottom}; };
-        const stick=rect("stick-zone"),slide=rect("swipe-zone"),reload=rect("reload-touch"),fire=rect("fire-touch"),hud=rect("game-health"),controls=rect("mobile-controls");
+        const stick=rect("stick-zone"),slide=rect("swipe-zone"),reload=rect("reload-touch"),fire=rect("fire-touch"),controls=rect("mobile-controls");
+        const hud=document.querySelector(".hud-bottom").getBoundingClientRect();
         return stick.right<=slide.left && slide.right<=reload.left && reload.right<=fire.left && hud.bottom<controls.top;
       });
       assert.equal(spacing, true, "mobile control zones and HUD must not overlap");
