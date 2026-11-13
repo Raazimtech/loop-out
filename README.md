@@ -69,3 +69,12 @@ Touch devices: left virtual stick to move, drag the field to aim, and use FIRE /
 `loop-out-stage-2-3`
 
 The default branch remains untouched. The branch is not yet browser-verified; run two separate signed-in sessions in the same mode to validate the first realtime player sync.
+
+
+## RAAZIM launch and device handling
+- A branded RAAZIM startup screen precedes authentication.
+- Supabase's persistent browser session is restored after the startup screen; returning players skip the login form unless they sign out or the browser session expires.
+- The first user gesture requests fullscreen and landscape orientation where the browser supports those APIs.
+- Phones that do not permit programmatic orientation locking (notably some iOS browser contexts) receive a rotate-to-landscape gate rather than a false promise that the browser can force rotation.
+- Touch hardware uses a lower render pixel ratio and disables dynamic shadow maps to reduce GPU load. Desktop keeps higher quality rendering.
+- The game view fills the screen on touch devices in landscape, with safe-area-aware HUD and controls.
