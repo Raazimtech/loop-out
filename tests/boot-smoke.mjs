@@ -10,8 +10,8 @@ try {
     const context = await browser.newContext(device);
     const page = await context.newPage();
 
-    // The startup flow must remain usable even when optional third-party game
-    // libraries are unavailable. This test isolates the first-party entry UI.
+    // Keep Supabase isolated, but load the real Three.js game module so module
+    // import/runtime errors are caught before testing the entry interaction.
     await page.route("**/supabase-js@2*", route => route.fulfill({
       contentType: "application/javascript",
       body: "window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),signOut:async()=>({})},from:()=>({select:()=>({eq:()=>({single:async()=>({data:null,error:{message:'not used'}})})})})})};",
