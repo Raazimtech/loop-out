@@ -229,8 +229,8 @@ function shoot(){
  const meshes=[];targets.forEach(t=>{if(t.userData.alive)t.userData.parts.forEach(p=>meshes.push(p));});enemies.forEach(e=>{if(e.userData.alive)e.userData.parts.forEach(p=>meshes.push(p));});
  const hit=raycaster.intersectObjects(meshes,false)[0];
  if(hit){
-  const bot=enemies.find(b=>b.userData.parts.includes(hit.object));
-  if(bot){bot.userData.hp-=50;if(bot.userData.hp<=0){bot.userData.alive=false;bot.userData.respawnAt=performance.now()+6500;bot.visible=false;score++;$("game-score").textContent=String(score).padStart(2,"0");}}
+  const enemy=enemies.find(e=>e.userData.parts.includes(hit.object));
+  if(enemy){enemy.userData.hp-=50;if(enemy.userData.hp<=0){enemy.userData.alive=false;enemy.userData.respawnAt=performance.now()+4200;enemy.visible=false;score++;$("game-score").textContent=String(score).padStart(2,"0");}}
   else{const target=targets.find(t=>t.userData.parts.includes(hit.object));if(target){target.userData.alive=false;target.userData.respawn=performance.now()+2400;target.visible=false;score++;$("game-score").textContent=String(score).padStart(2,"0");}}
  }
 }
