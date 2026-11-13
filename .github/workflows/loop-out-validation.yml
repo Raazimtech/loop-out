@@ -31,7 +31,9 @@ jobs:
           grep -q 'stopLoopOutGame' game.js
           grep -q 'const topic="loopout:"+selectedMode' game.js
           grep -q 'blackout_player_profiles' index.html
-          grep -q 'RAA<span>Z</span>IM' index.html
+          grep -q 'LOOP OUT' index.html
+          grep -q '>RAZIM</div>' index.html
+          ! grep -q 'boot-enter\|TAP TO ENTER' index.html
       - name: Verify HTML element references
         run: |
           python3 - <<'PY'
