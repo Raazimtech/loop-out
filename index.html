@@ -38,7 +38,7 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 .mobile-actions button.fire{background:#a83d34d9;border-color:#f18a7f}
 @media(pointer:coarse),(max-width:800px){#mobile-controls{display:flex}.game-help{top:76px;font-size:9px}.hud-box{padding:8px 10px}.game-hud{padding:10px}.hud-top{flex-wrap:wrap;gap:6px}.hud-top #game-exit{margin-left:auto}#game-view{min-height:560px;height:75svh}}
 
-/* RAAZIM boot sequence and landscape-first play shell */
+/* LOOP OUT automatic boot sequence and landscape-first app shell */
 #raazim-splash{position:fixed;z-index:1300;inset:0;display:grid;place-items:center;background:#05080b;overflow:hidden;transition:opacity .65s ease,visibility .65s ease}
 #raazim-splash:before{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#c8a66a12 50%,transparent 65%),radial-gradient(ellipse at 50% 55%,#1d2932 0,transparent 58%)}
 #raazim-splash.leaving{opacity:0;visibility:hidden;pointer-events:none}
@@ -47,19 +47,46 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 .boot-wordmark span{color:var(--accent)}
 .boot-rule{width:min(280px,55vw);height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
 .boot-sub{font-size:9px;letter-spacing:.48em;color:#9aa5ac}
-#boot-enter{position:relative;z-index:2;pointer-events:auto;touch-action:manipulation;-webkit-appearance:none;appearance:none;margin-top:16px;background:transparent;border:1px solid #c8a66a88;color:#e8d5b5;padding:15px 32px;font:700 11px Inter;letter-spacing:3px}
-#boot-enter:active{background:#c8a66a;color:#080b0e}
 #rotate-gate{display:none;position:fixed;z-index:1200;inset:0;background:#070b0f;color:#f2f3f1;align-items:center;justify-content:center;text-align:center;padding:28px}
 .rotate-content{max-width:330px}.rotate-icon{font-size:42px;color:var(--accent);margin-bottom:20px}.rotate-content b{display:block;font:800 28px 'Barlow Condensed';letter-spacing:2px}.rotate-content p{font-size:12px;line-height:1.7;color:#9aa5ac}
 #rotate-gate.active{display:flex}
 @media (pointer:coarse){#game-view{position:fixed;z-index:50;inset:0;width:100vw;height:100dvh;min-height:0;border:0;margin:0;max-height:none}#game-canvas{width:100%;height:100%;}#app.game-active main{width:100%;padding:0;margin:0}#app.game-active .topbar,#app.game-active .footer{display:none}.game-hud{padding:calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 9px) calc(env(safe-area-inset-bottom) + 8px) calc(env(safe-area-inset-left) + 9px)}#mobile-controls{bottom:calc(env(safe-area-inset-bottom) + 12px)}#stick-zone{width:clamp(90px,19vw,132px);height:clamp(90px,19vw,132px)}#stick-knob{left:calc(50% - 24px);top:calc(50% - 24px)}.mobile-actions button{width:clamp(52px,10vw,68px);height:clamp(52px,10vw,68px)}}
 @media (orientation:landscape) and (max-height:500px){#game-view{height:100dvh;min-height:0}.hud-box{padding:6px 9px}.hud-number{font-size:18px}.game-help{top:54px}.mobile-actions button{width:54px;height:54px}#stick-zone{width:100px;height:100px}}
+@media (pointer:coarse) and (orientation:landscape){
+ #app{min-height:100dvh}
+ main{width:calc(100% - 28px);padding:14px 0 18px}
+ .topbar{height:48px;padding:0 18px}
+ .hero{grid-template-columns:1fr .65fr;gap:18px;margin-bottom:14px}
+ .hero h1{font-size:clamp(38px,7vw,64px);margin:8px 0}
+ .hero p{font-size:11px;line-height:1.45}
+ .hero-art{height:112px}
+ .auth-layout{grid-template-columns:1fr minmax(270px,38%);gap:14px}
+ .briefing{padding:15px}.briefing h2{font-size:22px;margin:5px 0}
+ .briefing p{font-size:10px;line-height:1.5}
+ .feature-list{margin-top:10px;gap:6px}
+ .feature{padding:7px 0}.feature b{font-size:12px}.feature span{font-size:9px}
+ .auth{padding:16px}.auth h2{font-size:21px}.sub{margin-bottom:12px}
+ .field{margin:8px 0}.field input{height:38px}
+ .primary{min-height:39px;margin-top:7px}
+ .fineprint{font-size:8px;margin-top:8px}
+ .section-head{margin-bottom:10px}.section-head h2{font-size:26px}
+ .character-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+ .character{display:block}.character-visual{height:100px}
+ .card-copy{padding:10px}.card-copy b{font-size:16px}.card-copy p{font-size:9px}
+ .mode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .mode-visual{height:105px}.mode .card-copy{padding:10px}
+ .lobby{padding:15px}
+ .footer{padding:8px 18px}
+}
+@media (pointer:coarse) and (orientation:portrait){
+ #rotate-gate{display:flex}
+}
 @media (prefers-reduced-motion:reduce){#raazim-splash{transition:none}}
 
 </style>
 </head>
 <body>
-<div id="raazim-splash" aria-label="RAAZIM game startup"><div class="boot-inner"><div class="boot-wordmark">RAA<span>Z</span>IM</div><div class="boot-rule"></div><div class="boot-sub">AN INDEPENDENT GAME EXPERIENCE</div><button id="boot-enter" type="button">TAP TO ENTER</button></div></div>
+<div id="raazim-splash" aria-label="LOOP OUT"><div class="boot-inner"><div class="boot-wordmark">LOOP OUT</div><div class="boot-rule"></div><div class="boot-sub">RAZIM</div></div></div>
 <div id="rotate-gate"><div class="rotate-content"><div class="rotate-icon">↻</div><b>ROTATE YOUR DEVICE</b><p>LOOP OUT is designed for landscape play. Turn your phone sideways to enter the operation.</p></div></div>
 <div id="app">
 <header class="topbar"><div class="brand"><div class="brand-mark">L</div><div><div class="brand-name">LOOP OUT</div><div class="brand-sub">TACTICAL OPERATIONS</div></div></div><div class="top-status"><i class="dot"></i><span id="connection-label">SYSTEM STANDBY</span></div></header>
@@ -121,30 +148,27 @@ let selectedMode = "open_world";
 let introComplete = false;
 const $ = id => document.getElementById(id);
 const views = ["auth-view","character-view","mode-view","lobby-view","game-view"];
-function updateRotateGate(){const gate=$("rotate-gate");const portrait=matchMedia("(orientation: portrait) and (max-width: 900px)").matches;gate.classList.toggle("active",portrait&&$("game-view").classList.contains("hidden")===false);}
+function updateRotateGate(){const gate=$("rotate-gate");const portrait=matchMedia("(pointer: coarse) and (orientation: portrait)").matches;gate.classList.toggle("active",portrait);document.documentElement.classList.toggle("mobile-portrait",portrait);}
 function showView(id){views.forEach(v=>$(v).classList.toggle("hidden",v!==id));$("app").classList.toggle("game-active",id==="game-view");updateRotateGate();}
 window.addEventListener("orientationchange",updateRotateGate);window.addEventListener("resize",updateRotateGate);
 function setError(message){$("auth-error").textContent=message||"";}
 async function requestLandscape(){
  if(!matchMedia("(pointer: coarse)").matches)return;
- const requests=[];
- try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)requests.push(document.documentElement.requestFullscreen());}catch(_){}
- try{if(screen.orientation?.lock)requests.push(screen.orientation.lock("landscape"));}catch(_){}
- await Promise.allSettled(requests);
+ try{if(screen.orientation?.lock)await screen.orientation.lock("landscape");}catch(_){/* iOS Safari may reject orientation lock; the rotate gate remains active. */}
 }
-function enterBoot(event){
+function enterBoot(){
  if(introComplete)return;
- if(event){event.preventDefault();event.stopPropagation();}
  introComplete=true;
  const splash=$("raazim-splash");
  if(splash){splash.classList.add("leaving");splash.setAttribute("aria-hidden","true");}
- requestLandscape();
  if(window.__loopOutSession&&currentUser&&currentProfile){routeSignedIn();}else{showView("auth-view");}
  if(splash)setTimeout(()=>splash.remove(),750);
 }
-const bootEnter=$("boot-enter");
-bootEnter.addEventListener("pointerup",enterBoot,{capture:true});
-bootEnter.addEventListener("click",enterBoot);
+requestLandscape();
+updateRotateGate();
+window.addEventListener("load",requestLandscape,{once:true});
+window.addEventListener("touchstart",requestLandscape,{once:true,passive:true});
+setTimeout(enterBoot,1800);
 function routeSignedIn(){
  if(!currentUser||!currentProfile)return;
  window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:currentProfile.character_id};
