@@ -1,9 +1,11 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 import { PointerLockControls } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/PointerLockControls.js";
 import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
+import { clone as cloneSkeleton } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/utils/SkeletonUtils.js";
 
 let renderer, scene, camera, controls, animationId, running=false, selectedMode="open_world", worldMode=null, resizeBound=false, clickBound=false;
 let targets=[],enemies=[],obstacles=[],keys={},ammo=30,reserve=120,score=0,playerHealth=100,reloading=false,lastShot=0,weaponModel=null,muzzleFlash=null;
+let zombieTemplate=null,zombieAssetLoading=false;
 let yaw=0,pitch=0,stick={x:0,y:0},touchLook=null;
 let weaponRecoil=0,audioContext=null,slideUntil=0,slideDirection=0,lastSlide=0,damageGraceUntil=0,lastDamageAt=0,lastPlayerHitAt=0;
 const moveVelocity=new THREE.Vector3(),slideVector=new THREE.Vector3();
@@ -59,15 +61,61 @@ function makeEnemy(x,z,index){
  }
  group.userData.respawnAt=0;scene.add(group);enemies.push(group);return group;
 }
+const ZOMBIE_MODEL_URL="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r180/examples/models/gltf/Soldier.glb";
+function attachZombieModel(enemy,gltf){
+ const d=enemy.userData;
+ if(d.kind!=="zombie"||d.model)return;
+ const model=cloneSkeleton(gltf.scene);
+ const bounds=new THREE.Box3().setFromObject(model);
+ const size=bounds.getSize(new THREE.Vector3());
+ const scale=size.y?1.88/size.y:1;
+ model.scale.setScalar(scale);
+ model.position.y=-bounds.min.y*scale;
+ model.traverse(node=>{
+  if(!node.isMesh)return;
+  node.castShadow=true;node.receiveShadow=true;
+  const tint=material=>{
+   const copy=material.clone();
+   if(copy.color)copy.color.multiply(new THREE.Color(0.82,0.91,0.76));
+   return copy;
+  };
+  node.material=Array.isArray(node.material)?node.material.map(tint):tint(node.material);
+  d.parts.push(node);
+ });
+ // Remove the procedural placeholder only after the real rig has been cloned.
+ for(const child of [...enemy.children]){
+  enemy.remove(child);
+  child.traverse(node=>{
+   if(node.geometry)node.geometry.dispose();
+   if(node.material)(Array.isArray(node.material)?node.material:[node.material]).forEach(m=>m.dispose());
+  });
+ }
+ enemy.add(model);
+ d.parts=d.parts.filter(part=>part.parent);
+ d.model=model;
+ d.mixer=new THREE.AnimationMixer(model);
+ const runClip=gltf.animations.find(clip=>/run/i.test(clip.name))||gltf.animations.find(clip=>/walk/i.test(clip.name))||gltf.animations[0];
+ if(runClip)d.mixer.clipAction(runClip).play();
+}
+function loadZombieAsset(){
+ if(zombieTemplate){enemies.forEach(enemy=>attachZombieModel(enemy,zombieTemplate));return;}
+ if(zombieAssetLoading)return;
+ zombieAssetLoading=true;
+ assetLoader.load(ZOMBIE_MODEL_URL,gltf=>{
+  zombieTemplate=gltf;zombieAssetLoading=false;
+  enemies.forEach(enemy=>attachZombieModel(enemy,gltf));
+ },undefined,()=>{zombieAssetLoading=false;});
+}
 function updateEnemies(dt){
  const now=performance.now();
  enemies.forEach(enemy=>{
   const d=enemy.userData;
+  if(d.mixer)d.mixer.update(dt);
   if(!d.alive){if(now>=d.respawnAt){d.alive=true;d.hp=100;enemy.position.copy(d.spawn);enemy.visible=true;d.nextAttack=now+900;}return;}
   const dx=camera.position.x-enemy.position.x,dz=camera.position.z-enemy.position.z,dist=Math.hypot(dx,dz);
   if(d.kind==="zombie"){
    if(dist>1.35&&dist<260){
-    const baseAngle=Math.atan2(dz,dx),speed=dist>18?3.45:2.25;
+    const baseAngle=Math.atan2(dz,dx),speed=dist>18?3.05:2.05;
     const separation=new THREE.Vector2();
     enemies.forEach(other=>{if(other===enemy||!other.userData.alive||other.userData.kind!=="zombie")return;const ox=enemy.position.x-other.position.x,oz=enemy.position.z-other.position.z,od=Math.hypot(ox,oz);if(od>0&&od<2.5){separation.x+=ox/od*(2.5-od);separation.y+=oz/od*(2.5-od);}});
     let moved=false;
@@ -78,19 +126,30 @@ function updateEnemies(dt){
     if(!moved)d.stuck+=dt;else d.stuck=0;
     if(d.stuck>.8){d.phase+=1.7;d.stuck=0;}
    }
-   if(dist<1.9&&now>d.nextAttack){d.nextAttack=now+2100;damagePlayer(6);}
+   if(dist<1.75&&now>d.nextAttack){d.nextAttack=now+2700;damagePlayer(3.5);}
    enemy.rotation.y=Math.atan2(dx,dz);
-   const swing=Math.sin(now*.009+d.phase)*.12;
-   if(d.parts[8])d.parts[8].rotation.z=-.32+swing;
-   if(d.parts[9])d.parts[9].rotation.z=.32-swing;
+   if(!d.mixer){const swing=Math.sin(now*.009+d.phase)*.12;if(d.parts[8])d.parts[8].rotation.z=-.32+swing;if(d.parts[9])d.parts[9].rotation.z=.32-swing;}
   }else{
    enemy.position.y=THREE.MathUtils.lerp(enemy.position.y,2.7+Math.sin(now*.002+d.phase)*.28,Math.min(1,dt*3));
-   if(dist>4&&dist<115){const nx=enemy.position.x+dx/Math.max(dist,.01)*3.1*dt,nz=enemy.position.z+dz/Math.max(dist,.01)*3.1*dt;if(!blocked(nx,nz)){enemy.position.x=nx;enemy.position.z=nz;}}
+   if(dist>4&&dist<100){
+    const nx=enemy.position.x+dx/Math.max(dist,.01)*2.65*dt,nz=enemy.position.z+dz/Math.max(dist,.01)*2.65*dt;
+    if(!blocked(nx,nz)){enemy.position.x=nx;enemy.position.z=nz;}
+   }
    enemy.rotation.y=Math.atan2(dx,dz);
-   if(dist<23&&now>d.nextAttack){
-    d.nextAttack=now+4800+Math.random()*900;
-    const material=new THREE.LineBasicMaterial({color:0xff5147,transparent:true,opacity:.85}),geometry=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(enemy.position.x,enemy.position.y+.2,enemy.position.z),new THREE.Vector3(camera.position.x,1.3,camera.position.z)]),beam=new THREE.Line(geometry,material);scene.add(beam);setTimeout(()=>{scene?.remove(beam);geometry.dispose();material.dispose();},160);
-    damagePlayer(3);
+   if(dist<20&&now>d.nextAttack&&!lineBlocked(enemy.position.x,enemy.position.z,camera.position.x,camera.position.z)){
+    d.nextAttack=now+6500+Math.random()*900;
+    const beamScene=scene;
+    const material=new THREE.LineBasicMaterial({color:0xff5147,transparent:true,opacity:.9});
+    const geometry=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(enemy.position.x,enemy.position.y+.2,enemy.position.z),new THREE.Vector3(camera.position.x,1.3,camera.position.z)]);
+    const beam=new THREE.Line(geometry,material);beamScene.add(beam);
+    // Telegraph the shot so players can dodge instead of taking invisible instant damage.
+    setTimeout(()=>{
+     if(running&&scene===beamScene&&d.alive){
+      const currentDistance=enemy.position.distanceTo(new THREE.Vector3(camera.position.x,enemy.position.y,camera.position.z));
+      if(currentDistance<22&&!lineBlocked(enemy.position.x,enemy.position.z,camera.position.x,camera.position.z))damagePlayer(2);
+     }
+     beamScene.remove(beam);geometry.dispose();material.dispose();
+    },430);
    }
   }
  });
@@ -107,19 +166,19 @@ function playHitSound(){
  }catch(_){}
 }
 function damagePlayer(amount){
- const now=performance.now();if(now<damageGraceUntil||now-lastPlayerHitAt<950)return;
- lastPlayerHitAt=now;lastDamageAt=now;playerHealth=Math.max(0,playerHealth-Math.min(amount,7));
- $("game-health").textContent=String(playerHealth).padStart(3,"0");
+ const now=performance.now();if(now<damageGraceUntil||now-lastPlayerHitAt<1400)return;
+ lastPlayerHitAt=now;lastDamageAt=now;playerHealth=Math.max(0,playerHealth-Math.min(amount,4));
+ $("game-health").textContent=String(Math.ceil(playerHealth)).padStart(3,"0");
  const meter=$("health-fill");if(meter){meter.style.width=playerHealth+"%";meter.style.background=playerHealth<30?"#d16b62":playerHealth<60?"#c8a66a":"#8fae91";}
  playHitSound();if(navigator.vibrate)navigator.vibrate([65,35,45]);
  const flash=$("damage-flash");if(flash){flash.classList.remove("hit");void flash.offsetWidth;flash.classList.add("hit");}
  if(playerHealth===0){
-  playerHealth=100;camera.position.set(0,1.7,selectedMode==="small_arena"?20:12);camera.rotation.set(0,0,0);yaw=0;pitch=0;moveVelocity.set(0,0,0);damageGraceUntil=now+1800;
+  playerHealth=100;camera.position.set(0,1.7,selectedMode==="small_arena"?20:12);camera.rotation.set(0,0,0);yaw=0;pitch=0;moveVelocity.set(0,0,0);lastDamageAt=now;lastPlayerHitAt=now;damageGraceUntil=now+2500;
   $("game-health").textContent="100";if(meter){meter.style.width="100%";meter.style.background="#8fae91";}$("game-help").textContent="OVERRUN · RESPAWN COMPLETE";updateHud();
  }
 }
 function updateHealthRegen(dt){
- if(playerHealth<100&&performance.now()-lastDamageAt>3000){playerHealth=Math.min(100,playerHealth+dt*9);$("game-health").textContent=String(Math.ceil(playerHealth)).padStart(3,"0");const meter=$("health-fill");if(meter){meter.style.width=playerHealth+"%";meter.style.background=playerHealth<30?"#d16b62":playerHealth<60?"#c8a66a":"#8fae91";}}
+ if(playerHealth<100&&performance.now()-lastDamageAt>2500){playerHealth=Math.min(100,playerHealth+dt*8);$("game-health").textContent=String(Math.ceil(playerHealth)).padStart(3,"0");const meter=$("health-fill");if(meter){meter.style.width=playerHealth+"%";meter.style.background=playerHealth<30?"#d16b62":playerHealth<60?"#c8a66a":"#8fae91";}}
 }
 function playShotSound(){
  try{
@@ -159,20 +218,35 @@ function loadEnvironmentAssets(sceneRef,arena){
   addEnvironmentModel(sceneRef,"building-type-c.glb",34,31,7,-Math.PI/2);
  }
 }
-function addForest(sceneRef,count=190,radius=260){
- const trunkGeo=new THREE.CylinderGeometry(.22,.34,2.8,7),leafGeo=new THREE.ConeGeometry(2.1,5.8,7);
- const trunkMat=mat(0x554332),leafMat=mat(0x304b36);
- const trunks=new THREE.InstancedMesh(trunkGeo,trunkMat,count),crowns=new THREE.InstancedMesh(leafGeo,leafMat,count);
- const dummy=new THREE.Object3D();let placed=0,seed=817;
+function addForest(sceneRef,count=105,radius=260){
+ let seed=817;
  const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
- while(placed<count){
+ const locations=[];
+ while(locations.length<count){
   const x=(rand()*2-1)*radius,z=(rand()*2-1)*radius;
-  if(Math.hypot(x,z)<28)continue;
-  const yScale=.72+rand()*.75;
-  dummy.position.set(x,1.4*yScale,z);dummy.scale.set(yScale,yScale,yScale);dummy.rotation.y=rand()*Math.PI*2;dummy.updateMatrix();trunks.setMatrixAt(placed,dummy.matrix);
-  dummy.position.set(x,4.15*yScale,z);dummy.scale.set(yScale,yScale,yScale);dummy.updateMatrix();crowns.setMatrixAt(placed,dummy.matrix);placed++;
+  if(Math.hypot(x,z)<30)continue;
+  locations.push({x,z,scale:.72+rand()*.72,rotation:rand()*Math.PI*2});
  }
- trunks.castShadow=true;crowns.castShadow=true;trunks.receiveShadow=true;crowns.receiveShadow=true;sceneRef.add(trunks,crowns);
+ assetLoader.load(assetRoot+"tree-large.glb",gltf=>{
+  if(scene!==sceneRef)return;
+  const source=gltf.scene,bounds=new THREE.Box3().setFromObject(source),size=bounds.getSize(new THREE.Vector3());
+  const baseScale=size.y?6.5/size.y:1;
+  locations.forEach(p=>{
+   const tree=source.clone(true),scale=baseScale*p.scale;
+   tree.scale.setScalar(scale);tree.position.set(p.x,-bounds.min.y*scale,p.z);tree.rotation.y=p.rotation;
+   tree.traverse(node=>{if(node.isMesh){node.castShadow=true;node.receiveShadow=true;}});
+   sceneRef.add(tree);
+  });
+ },undefined,()=>{
+  const trunkGeo=new THREE.CylinderGeometry(.22,.34,2.8,7),leafGeo=new THREE.ConeGeometry(2.1,5.8,7);
+  const trunks=new THREE.InstancedMesh(trunkGeo,mat(0x554332),count),crowns=new THREE.InstancedMesh(leafGeo,mat(0x304b36),count);
+  const dummy=new THREE.Object3D();
+  locations.forEach((p,i)=>{
+   dummy.position.set(p.x,1.4*p.scale,p.z);dummy.scale.setScalar(p.scale);dummy.rotation.y=p.rotation;dummy.updateMatrix();trunks.setMatrixAt(i,dummy.matrix);
+   dummy.position.set(p.x,4.15*p.scale,p.z);dummy.updateMatrix();crowns.setMatrixAt(i,dummy.matrix);
+  });
+  trunks.castShadow=true;crowns.castShadow=true;trunks.receiveShadow=true;crowns.receiveShadow=true;sceneRef.add(trunks,crowns);
+ });
 }
 
 function disposeWorld(){
@@ -196,7 +270,7 @@ function buildWorld(mode){
  if(!renderer){renderer=new THREE.WebGLRenderer({canvas,antialias:!matchMedia("(pointer: coarse)").matches,powerPreference:"high-performance",stencil:false,depth:true});renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia("(pointer: coarse)").matches?1.25:1.6));renderer.shadowMap.enabled=!matchMedia("(pointer: coarse)").matches;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;}renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
  const hemi=new THREE.HemisphereLight(0xe5f0f2,0x594b35,arena?2.1:2.5);scene.add(hemi);
  const sun=new THREE.DirectionalLight(0xffd59b,arena?2.2:3.35);sun.position.set(-110,145,90);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-150;sun.shadow.camera.right=150;sun.shadow.camera.top=150;sun.shadow.camera.bottom=-150;sun.shadow.bias=-.00018;scene.add(sun);
- if(!arena){const sunDisc=new THREE.Mesh(new THREE.SphereGeometry(11,20,16),new THREE.MeshBasicMaterial({color:0xffd99c}));sunDisc.position.set(-180,150,-240);scene.add(sunDisc);}
+ if(!arena){const sunDisc=new THREE.Mesh(new THREE.SphereGeometry(13,24,18),new THREE.MeshBasicMaterial({color:0xffd99c}));sunDisc.position.set(-180,150,-240);scene.add(sunDisc);}
  const ground=new THREE.Mesh(new THREE.PlaneGeometry(arena?64:1200,arena?64:1200),mat(arena?0x59645b:0x756e58));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
  const grid=new THREE.GridHelper(arena?64:1200,arena?32:200,0x839083,0x667568);grid.position.y=.012;grid.material.transparent=true;grid.material.opacity=.12;scene.add(grid);
  const concrete=mat(0x777e7c),dark=mat(0x343d40),sand=mat(0x9b8b6d),metal=mat(0x4a5559),green=mat(0x46564a);
@@ -226,6 +300,7 @@ function buildWorld(mode){
  }
 
  loadEnvironmentAssets(scene,arena);
+ if(!arena)loadZombieAsset();
  controls=new PointerLockControls(camera,renderer.domElement);
  controls.addEventListener("lock",()=>{$("game-help").style.display="none";});
  controls.addEventListener("unlock",()=>{if(running)$("game-help").style.display="block";});
@@ -234,19 +309,21 @@ function buildWorld(mode){
 }
 function resize(){if(!renderer||!camera)return;const w=canvas.clientWidth,h=canvas.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia("(pointer: coarse)").matches?1.25:1.6));}
 function blocked(x,z){return obstacles.some(o=>Math.abs(x-o.x)<o.w/2+.42&&Math.abs(z-o.z)<o.d/2+.42);}
+function lineBlocked(x1,z1,x2,z2){const steps=Math.max(4,Math.ceil(Math.hypot(x2-x1,z2-z1)/1.2));for(let i=1;i<steps;i++){const t=i/steps;if(blocked(x1+(x2-x1)*t,z1+(z2-z1)*t))return true;}return false;}
 function startSlide(direction){
- const now=performance.now();if(!running||now-lastSlide<720)return;
- lastSlide=now;slideDirection=Math.sign(direction)||1;slideUntil=now+390;damageGraceUntil=Math.max(damageGraceUntil,now+340);
- if(navigator.vibrate)navigator.vibrate(24);
+ const now=performance.now();if(!running||now-lastSlide<560)return;
+ lastSlide=now;slideDirection=Math.sign(direction)||1;slideUntil=now+480;damageGraceUntil=Math.max(damageGraceUntil,now+520);
+ if(navigator.vibrate)navigator.vibrate(32);
 }
 function move(dt){
- const forward=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-stick.y;
- const side=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+stick.x;
+ let forward=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0)-stick.y;
+ let side=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+stick.x;
+ if(Math.abs(forward)<.12)forward=0;if(Math.abs(side)<.12)side=0;
  const input=new THREE.Vector3(side,0,-forward);if(input.lengthSq()>1)input.normalize();input.applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
  const now=performance.now(),sliding=now<slideUntil;
  const desired=new THREE.Vector3();
- if(sliding){slideVector.set(slideDirection,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);desired.copy(slideVector).multiplyScalar(9.2);const forwardMove=input.clone();forwardMove.y=0;desired.add(forwardMove.multiplyScalar(6.2));}
- else{const sprint=keys.ShiftLeft||keys.ShiftRight||stick.y<-.72;desired.copy(input).multiplyScalar(sprint?10.1:6.4);}
+ if(sliding){slideVector.set(slideDirection,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);desired.copy(slideVector).multiplyScalar(10.6);const forwardMove=input.clone();forwardMove.y=0;desired.add(forwardMove.multiplyScalar(6.2));}
+ else{const sprint=keys.ShiftLeft||keys.ShiftRight||stick.y<-.72;desired.copy(input).multiplyScalar(sprint?11.4:7.1);}
  moveVelocity.lerp(desired,Math.min(1,dt*(sliding?18:11)));
  const nx=camera.position.x+moveVelocity.x*dt,nz=camera.position.z+moveVelocity.z*dt;
  if(!blocked(nx,nz)){camera.position.x=nx;camera.position.z=nz;}
@@ -282,19 +359,50 @@ function bindControls(){
  window.addEventListener("mousedown",e=>{if(e.button===0&&controls?.isLocked)shoot();});
  $("fire-touch").addEventListener("touchstart",e=>{e.preventDefault();shoot();},{passive:false});
  $("reload-touch").addEventListener("touchstart",e=>{e.preventDefault();reload();},{passive:false});
- const zone=$("stick-zone"),knob=$("stick-knob");let stickId=null;
- zone.addEventListener("touchstart",e=>{const t=e.changedTouches[0];stickId=t.identifier;},{passive:true});
- zone.addEventListener("touchmove",e=>{for(const t of e.changedTouches){if(t.identifier!==stickId)continue;const r=zone.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=t.clientX-cx,dy=t.clientY-cy;const len=Math.hypot(dx,dy),max=40;if(len>max){dx=dx/len*max;dy=dy/len*max;}stick.x=dx/max;stick.y=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`; }},{passive:true});
- const reset=()=>{stickId=null;stick={x:0,y:0};knob.style.transform="translate(0,0)";};zone.addEventListener("touchend",reset);zone.addEventListener("touchcancel",reset);
- const swipeZone=$("swipe-zone");if(swipeZone){let swipeStart=null;swipeZone.addEventListener("pointerdown",e=>{swipeStart={x:e.clientX,y:e.clientY,id:e.pointerId};swipeZone.setPointerCapture(e.pointerId);});swipeZone.addEventListener("pointerup",e=>{if(!swipeStart||swipeStart.id!==e.pointerId)return;const dx=e.clientX-swipeStart.x,dy=e.clientY-swipeStart.y;if(Math.abs(dx)>28&&Math.abs(dx)>Math.abs(dy)*1.15)startSlide(dx>0?1:-1);swipeStart=null;});swipeZone.addEventListener("pointercancel",()=>swipeStart=null);}
- canvas.addEventListener("touchstart",e=>{if(e.touches.length===1){touchLook={x:e.touches[0].clientX,y:e.touches[0].clientY};}},{passive:true});
- canvas.addEventListener("touchmove",e=>{if(!touchLook)return;const t=e.touches[0],dx=t.clientX-touchLook.x,dy=t.clientY-touchLook.y;touchLook={x:t.clientX,y:t.clientY};yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch-dy*.004,-1.35,1.35);camera.rotation.set(pitch,yaw,0,"YXZ");},{passive:true});
- canvas.addEventListener("touchend",()=>touchLook=null);
+ const zone=$("stick-zone"),knob=$("stick-knob");let stickPointer=null;
+ const updateStick=e=>{
+  if(stickPointer!==e.pointerId)return;
+  const r=zone.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  let dx=e.clientX-cx,dy=e.clientY-cy;const max=Math.min(r.width,r.height)*.34,len=Math.hypot(dx,dy);
+  if(len>max){dx=dx/len*max;dy=dy/len*max;}
+  stick.x=dx/max;stick.y=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`;
+ };
+ const resetStick=e=>{
+  if(stickPointer!==e.pointerId)return;
+  stickPointer=null;stick={x:0,y:0};knob.style.transform="translate(0,0)";
+ };
+ zone.addEventListener("pointerdown",e=>{
+  if(stickPointer!==null)return;
+  e.preventDefault();stickPointer=e.pointerId;zone.setPointerCapture(e.pointerId);updateStick(e);
+ });
+ zone.addEventListener("pointermove",updateStick);
+ zone.addEventListener("pointerup",resetStick);
+ zone.addEventListener("pointercancel",resetStick);
+ zone.addEventListener("lostpointercapture",resetStick);
+ const swipeZone=$("swipe-zone");if(swipeZone){
+  let swipeStart=null;
+  swipeZone.addEventListener("pointerdown",e=>{
+   e.preventDefault();swipeStart={x:e.clientX,y:e.clientY,id:e.pointerId};
+   swipeZone.setPointerCapture(e.pointerId);
+  });
+  swipeZone.addEventListener("pointerup",e=>{
+   if(!swipeStart||swipeStart.id!==e.pointerId)return;
+   const dx=e.clientX-swipeStart.x,dy=e.clientY-swipeStart.y;
+   if(Math.abs(dx)>22&&Math.abs(dx)>Math.abs(dy)*1.05)startSlide(dx>0?1:-1);
+   swipeStart=null;
+  });
+  swipeZone.addEventListener("pointercancel",()=>swipeStart=null);
+ }
+ let lookPointer=null;
+ canvas.addEventListener("pointerdown",e=>{if(e.pointerType!=="touch")return;lookPointer=e.pointerId;touchLook={x:e.clientX,y:e.clientY};});
+ canvas.addEventListener("pointermove",e=>{if(e.pointerId!==lookPointer||!touchLook)return;const dx=e.clientX-touchLook.x,dy=e.clientY-touchLook.y;touchLook={x:e.clientX,y:e.clientY};yaw-=dx*.004;pitch=THREE.MathUtils.clamp(pitch-dy*.004,-1.35,1.35);camera.rotation.set(pitch,yaw,0,"YXZ");});
+ const stopLook=e=>{if(e.pointerId===lookPointer){lookPointer=null;touchLook=null;}};
+ canvas.addEventListener("pointerup",stopLook);canvas.addEventListener("pointercancel",stopLook);
 }
 window.startLoopOutGame=function(mode="open_world"){
  try{if(screen.orientation?.lock)screen.orientation.lock("landscape").catch(()=>{});}catch(_){}
- selectedMode=mode;if(running)stopGame();running=true;ammo=30;reserve=120;score=0;playerHealth=100;reloading=false;yaw=0;pitch=0;stick={x:0,y:0};keys={};slideUntil=0;lastSlide=0;damageGraceUntil=0;lastDamageAt=performance.now();lastPlayerHitAt=0;moveVelocity.set(0,0,0);$("game-help").textContent=matchMedia("(pointer: coarse)").matches?"LEFT STICK MOVE · DRAG TO AIM · FIRE / RELOAD":"CLICK FIELD TO LOCK MOUSE · WASD MOVE · MOUSE AIM · CLICK FIRE · R RELOAD";
- $("game-score").textContent="00";$("game-health").textContent="100";const healthMeter=$("health-fill");if(healthMeter)healthMeter.style.width="100%";updateHud();
+ selectedMode=mode;if(running)stopGame();running=true;ammo=30;reserve=120;score=0;playerHealth=100;reloading=false;yaw=0;pitch=0;stick={x:0,y:0};keys={};slideUntil=0;lastSlide=0;damageGraceUntil=0;lastDamageAt=performance.now();lastPlayerHitAt=0;moveVelocity.set(0,0,0);$("game-help").textContent=matchMedia("(pointer: coarse)").matches?"LEFT STICK MOVE / RUN · SWIPE LEFT OR RIGHT TO DODGE · DRAG TO AIM":"WASD MOVE · SHIFT RUN · Q / E DODGE · MOUSE AIM · CLICK FIRE · R RELOAD";
+ $("game-score").textContent="00";$("game-health").textContent="100";const healthMeter=$("health-fill");if(healthMeter){healthMeter.style.width="100%";healthMeter.style.background="#8fae91";}updateHud();
  if(!renderer||worldMode!==mode){buildWorld(mode);worldMode=mode;}else{camera.position.set(0,1.7,mode==="small_arena"?20:12);camera.rotation.set(0,0,0);targets.forEach(t=>{t.visible=true;t.userData.alive=true;});enemies.forEach(e=>{e.visible=true;e.userData.alive=true;e.userData.hp=100;e.position.copy(e.userData.spawn);});}
  resize();clock.start();animate();
 };
