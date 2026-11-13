@@ -9,18 +9,27 @@ try {
   ]) {
     const context = await browser.newContext(device);
     const page = await context.newPage();
+    const pageErrors = [];
+    const failedRequests = [];
+    page.on("pageerror", error => pageErrors.push(error.message));
+    page.on("requestfailed", request => failedRequests.push(`${request.url()}: ${request.failure()?.errorText || "request failed"}`));
 
-    // Keep Supabase isolated, but load the real Three.js game module so module
-    // import/runtime errors are caught before testing the entry interaction.
+    // Isolate Supabase: this smoke test checks startup navigation, not live credentials.
     await page.route("**/supabase-js@2*", route => route.fulfill({
       contentType: "application/javascript",
       body: "window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),signOut:async()=>({})},from:()=>({select:()=>({eq:()=>({single:async()=>({data:null,error:{message:'not used'}})})})})})};",
     }));
-    const pageErrors = [];
-    page.on("pageerror", error => pageErrors.push(error.message));
+
     await page.goto("http://127.0.0.1:4173/", { waitUntil: "domcontentloaded" });
-    await page.waitForFunction(() => typeof window.startLoopOutGame === "function", null, { timeout: 30000 });
+    try {
+      await page.waitForFunction(() => typeof window.startLoopOutGame === "function", null, { timeout: 30000 });
+    } catch {
+      throw new Error(
+        `${device.name}: game module did not initialize. Browser errors: ${pageErrors.join(" | ") || "none"}; failed requests: ${failedRequests.join(" | ") || "none"}`
+      );
+    }
     assert.deepEqual(pageErrors, [], `${device.name}: browser runtime error`);
+
     const enter = page.locator("#boot-enter");
     await enter.waitFor({ state: "visible" });
     if (device.hasTouch) await enter.tap();
