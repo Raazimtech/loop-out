@@ -36,9 +36,12 @@ try {
         const rect = id => { const r = document.getElementById(id).getBoundingClientRect(); return {left:r.left,right:r.right,top:r.top,bottom:r.bottom}; };
         const stick=rect("stick-zone"),slide=rect("swipe-zone"),reload=rect("reload-touch"),fire=rect("fire-touch"),controls=rect("mobile-controls");
         const hud=document.querySelector(".hud-bottom").getBoundingClientRect();
-        return stick.right<=slide.left && slide.right<=reload.left && reload.right<=fire.left && hud.bottom<controls.top;
+        return {stick,slide,reload,fire,hud:{left:hud.left,right:hud.right,top:hud.top,bottom:hud.bottom},controls,checks:{
+          stickSlide:stick.right<=slide.left,slideReload:slide.right<=reload.left,reloadFire:reload.right<=fire.left,hudControls:hud.bottom<controls.top
+        }};
       });
-      assert.equal(spacing, true, "mobile control zones and HUD must not overlap");
+      console.log("MOBILE LAYOUT:", JSON.stringify(spacing));
+      assert.equal(Object.values(spacing.checks).every(Boolean), true, "mobile control zones and HUD must not overlap");
     }
     assert.deepEqual(supabaseRequests, [], "game must not contact Supabase");
     assert.deepEqual(pageErrors, [], `${device.name}: browser runtime error`);
