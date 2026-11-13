@@ -36,7 +36,7 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 .mobile-actions{display:flex;gap:12px;align-items:end;pointer-events:auto}
 .mobile-actions button{width:64px;height:64px;border-radius:50%;background:#0a1017c9;border:1px solid #ffffff70;color:white;font:700 10px Inter;touch-action:none}
 .mobile-actions button.fire{background:#a83d34d9;border-color:#f18a7f}
-@media(pointer:coarse),(max-width:800px){#mobile-controls{display:flex}.game-help{top:76px;font-size:9px}.hud-box{padding:8px 10px}.game-hud{padding:10px}#game-view{min-height:560px;height:75svh}}
+@media(pointer:coarse),(max-width:800px){#mobile-controls{display:flex}.game-help{top:76px;font-size:9px}.hud-box{padding:8px 10px}.game-hud{padding:10px}.hud-top{flex-wrap:wrap;gap:6px}.hud-top #game-exit{margin-left:auto}#game-view{min-height:560px;height:75svh}}
 </style>
 </head>
 <body>
@@ -45,7 +45,7 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 <main>
 <section class="hero"><div><div class="eyebrow">MULTIPLAYER COMBAT SIMULATION / 001</div><h1>ENTER THE<br><span>OPERATION.</span></h1><p>A tactical first-person world built around positioning, awareness and teamwork. Create your callsign, select your operator and deploy when the battlefield is ready.</p></div><div class="hero-art"><div class="art-code">SECTOR 07 / CLASSIFIED</div><div class="art-label">FIELD OPERATIONS // LOOP OUT PROTOCOL</div></div></section>
 <section id="auth-view" class="auth-layout">
-<div class="panel briefing"><div class="eyebrow">MISSION BRIEFING</div><h2>NO TWO OPERATIONS ARE THE SAME.</h2><p>Build your operator identity now. The first release establishes player accounts, character identity and the two deployment queues. Real-time shared worlds and combat are being added in later development stages.</p><div class="feature-list"><div class="feature"><b>OPEN WORLD</b><span>Large-scale shared exploration</span></div><div class="feature"><b>SMALL ARENA</b><span>Compact close-quarters combat</span></div><div class="feature"><b>PLAYER IDENTITY</b><span>Your callsign and operator persist</span></div><div class="feature"><b>WEB DEPLOYMENT</b><span>Desktop and mobile browser support</span></div></div></div>
+<div class="panel briefing"><div class="eyebrow">MISSION BRIEFING</div><h2>NO TWO OPERATIONS ARE THE SAME.</h2><p>Build your operator identity now. The first release establishes player accounts, character identity and the two deployment queues. Live operator visibility is now being prototyped. Server-validated combat and AI opponents are still in development.</p><div class="feature-list"><div class="feature"><b>OPEN WORLD</b><span>Large-scale shared exploration</span></div><div class="feature"><b>SMALL ARENA</b><span>Compact close-quarters combat</span></div><div class="feature"><b>PLAYER IDENTITY</b><span>Your callsign and operator persist</span></div><div class="feature"><b>WEB DEPLOYMENT</b><span>Desktop and mobile browser support</span></div></div></div>
 <div class="panel auth"><h2>OPERATOR ACCESS</h2><p class="sub">Create a callsign or return to your account.</p><div class="tabs"><button class="tab active" id="signup-tab" type="button">CREATE ACCOUNT</button><button class="tab" id="login-tab" type="button">SIGN IN</button></div><form id="auth-form"><label class="field"><span>CALLSIGN / NICKNAME</span><input id="nickname" autocomplete="username" minlength="3" maxlength="16" pattern="[A-Za-z0-9_]+" placeholder="e.g. Ghost_07" required></label><label class="field"><span>PASSWORD</span><input id="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required></label><button class="primary" id="auth-submit" type="submit">CREATE OPERATOR</button><div class="error" id="auth-error" role="alert"></div></form><p class="fineprint">Use a unique password. This game uses Supabase authentication. Nicknames are public in-game identities; passwords are never stored in the game database as plain text.</p></div>
 </section>
 <section id="character-view" class="hidden"><div class="section-head"><div><div class="eyebrow">01 / OPERATOR CONFIGURATION</div><h2>CHOOSE YOUR OPERATOR</h2></div><div class="player-chip">CALLSIGN: <b id="callsign-display">—</b></div></div><div class="character-grid">
@@ -54,7 +54,7 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 <button class="character" data-character="support"><div class="character-visual"></div><div class="card-copy"><b>SUPPORT</b><p>Heavy field kit. A steadier, defensive profile.</p></div><span class="select-mark">SELECT</span></button>
 </div><div class="actions"><button class="primary" id="to-modes">CONFIRM OPERATOR</button></div></section>
 <section id="mode-view" class="hidden"><div class="section-head"><div><div class="eyebrow">02 / DEPLOYMENT SELECT</div><h2>SELECT YOUR MODE</h2></div><div class="player-chip">OPERATOR: <b id="mode-callsign">—</b></div></div><div class="mode-grid">
-<button class="mode selected" data-mode="open_world"><div class="mode-visual"></div><div class="card-copy"><b>OPEN WORLD</b><p>Explore a broad environment. Encounter other operators and AI patrols.</p></div></button>
+<button class="mode selected" data-mode="open_world"><div class="mode-visual"></div><div class="card-copy"><b>OPEN WORLD</b><p>Explore a broad training environment with live operator visibility.</p></div></button>
 <button class="mode" data-mode="small_arena"><div class="mode-visual"></div><div class="card-copy"><b>SMALL ARENA</b><p>A compact combat zone designed for short, intense engagements.</p></div></button>
 </div><div class="actions"><button class="secondary" id="back-character">BACK</button><button class="primary" id="deploy">ENTER DEPLOYMENT</button></div></section>
 <section id="lobby-view" class="hidden panel lobby"><div class="eyebrow">03 / DEPLOYMENT QUEUE</div><h2 class="section-title" id="lobby-title">OPEN WORLD</h2><div class="lobby-box"><h3>FOUNDATION BUILD IN PROGRESS</h3><p>Your account and operator identity are saved. This stage prepares the deployment flow. Shared 3D maps, live player visibility, bots and weapons are not enabled yet; those are separate implementation stages, not fake buttons.</p><div class="status-line"><i class="dot"></i><span id="lobby-status">Operator identity confirmed</span></div></div><div class="actions"><button class="secondary" id="back-modes">CHANGE MODE</button><button class="primary" id="signout">SIGN OUT</button></div></section>
@@ -81,7 +81,7 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
   <div class="mobile-actions"><button id="reload-touch" type="button">RELOAD</button><button class="fire" id="fire-touch" type="button">FIRE</button></div>
  </div>
 </section>
-</main><footer class="footer"><span>LOOP OUT // TACTICAL OPERATIONS</span><span>STAGE 02 — 3D TRAINING RANGE</span></footer>
+</main><footer class="footer"><span>LOOP OUT // TACTICAL OPERATIONS</span><span>STAGE 02–03 — 3D + MULTIPLAYER PROTOTYPE</span></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
