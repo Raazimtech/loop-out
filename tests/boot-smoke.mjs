@@ -31,6 +31,21 @@ try {
     await page.waitForFunction(() => Number(document.querySelector("#game-enemy-count")?.textContent || 0) > 0, null, { timeout: 10000 });
     assert.deepEqual(supabaseRequests, [], "game must not contact Supabase");
     assert.deepEqual(pageErrors, [], `${device.name}: browser runtime error`);
+    const cachedAssets = await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+      return {
+        engine: Boolean(await caches.match("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js")),
+        map: Boolean(await caches.match(new URL("./assets/blackout/building-type-a.glb", location.href).href))
+      };
+    });
+    assert.equal(cachedAssets.engine, true, "Three.js must be cached for offline use");
+    assert.equal(cachedAssets.map, true, "map assets must be cached for offline use");
+    await context.setOffline(true);
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => typeof window.startLoopOutGame === "function", null, { timeout: 15000 });
+    await page.waitForFunction(() => Number(document.querySelector("#game-enemy-count")?.textContent || 0) > 0, null, { timeout: 15000 });
+    assert.equal(await page.locator("#game-view").isVisible(), true, `${device.name}: game did not launch offline`);
+    assert.deepEqual(pageErrors, [], `${device.name}: offline browser runtime error`);
     await context.close();
     console.log(`PASS: ${device.name} offline solo entry`);
   }
