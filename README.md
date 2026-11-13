@@ -78,3 +78,11 @@ The default branch remains untouched. The branch is not yet browser-verified; ru
 - Phones that do not permit programmatic orientation locking (notably some iOS browser contexts) receive a rotate-to-landscape gate rather than a false promise that the browser can force rotation.
 - Touch hardware uses a lower render pixel ratio and disables dynamic shadow maps to reduce GPU load. Desktop keeps higher quality rendering.
 - The game view fills the screen on touch devices in landscape, with safe-area-aware HUD and controls.
+
+
+## Combat update: local AI opponents
+- Each map now spawns a small squad of AI combatants.
+- Bots approach and strafe around the player, take shots inside engagement range, and respawn after elimination.
+- Bot damage reduces the player's health; zero health triggers a local respawn.
+- Hits on bots require two body hits in this prototype; eliminations increment the HUD counter.
+- AI, damage and respawn are currently simulated on each browser client. They are not synchronized or server-validated, so this is a playable local combat layer, not cheat-resistant online PvP.
