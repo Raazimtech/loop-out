@@ -7,13 +7,14 @@ A browser-based first-person shooter built in stages with plain HTML/CSS/JavaScr
 Implemented:
 - BLACKOUT identity, callsign/password account UI, operator selection and exactly two modes.
 - BLACKOUT-only player profile table and signup trigger, isolated with unique `blackout_` names in the already-authorized Supabase project.
-- Three.js first-person training range with mouse look, WASD movement, collision boundaries, weapon firing, raycast hit detection, target dummies, ammo/reload and score.
+- Two distinct playable layouts: a larger Open World training compound and a compact Small Arena.
+- Three.js first-person movement, mouse look, a visible rifle model, muzzle flash, raycast hit detection, respawning target dummies, ammo/reload and score.
 - Mobile touch movement/look/fire/reload controls.
 - Responsive desktop and mobile HUD.
 
 Not implemented yet:
-- Online multiplayer, synchronized players, matchmaking/rooms, server-authoritative combat, AI opponents, advanced weapons, missions or a production-scale open world.
-- Real match separation between Open World and Small Arena; both currently load the training-range prototype, with the selected mode shown in the HUD.
+- Online multiplayer, synchronized players, matchmaking/rooms, server-authoritative combat, moving AI opponents, advanced weapon systems, missions or a production-scale open world.
+- Combat is currently a local target range: dummies are stationary practice targets, not AI players. No real opponents or other human players are connected yet.
 
 ## Data isolation and authentication
 
