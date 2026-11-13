@@ -42,6 +42,11 @@ main{width:min(1160px,100% - 36px);margin:auto;flex:1;padding:48px 0 64px}.eyebr
 #raazim-splash{position:fixed;z-index:1300;inset:0;display:grid;place-items:center;background:#05080b;overflow:hidden;transition:opacity 1s ease,visibility 1s ease}
 #raazim-splash:before{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#c8a66a12 50%,transparent 65%),radial-gradient(ellipse at 50% 55%,#1d2932 0,transparent 58%)}
 #raazim-splash.leaving{opacity:0;visibility:hidden;pointer-events:none}
+@keyframes loopOutBootExit{0%{opacity:1;visibility:visible}99%{opacity:0;visibility:visible}100%{opacity:0;visibility:hidden;pointer-events:none}}
+#raazim-splash{animation:loopOutBootExit 1s ease 1s forwards}
+#raazim-splash.leaving{animation:none}
+#app{visibility:visible;opacity:1}
+
 .boot-inner{position:relative;text-align:center;display:grid;justify-items:center;gap:18px;padding:24px}
 .boot-wordmark{font:900 clamp(62px,12vw,118px)/.82 'Barlow Condensed';letter-spacing:.12em;color:#f2f3f1;text-shadow:0 12px 50px #000}
 .boot-wordmark span{color:var(--accent)}
@@ -161,14 +166,16 @@ function enterBoot(){
  introComplete=true;
  const splash=$("raazim-splash");
  if(splash){splash.classList.add("leaving");splash.setAttribute("aria-hidden","true");}
- if(window.__loopOutSession&&currentUser&&currentProfile){routeSignedIn();}else{showView("auth-view");}
+ // Always reveal a usable entry screen even if session restoration or a module fails.
+ showView("auth-view");
+ if(window.__loopOutSession&&currentUser&&currentProfile)routeSignedIn();
  if(splash)setTimeout(()=>splash.remove(),1000);
 }
 requestLandscape();
 updateRotateGate();
 window.addEventListener("load",requestLandscape,{once:true});
 window.addEventListener("touchstart",requestLandscape,{once:true,passive:true});
-setTimeout(enterBoot,1000);
+setTimeout(enterBoot,2000);
 function routeSignedIn(){
  if(!currentUser||!currentProfile)return;
  window.loopOutPlayer={id:currentUser.id,username:currentProfile.username,character_id:currentProfile.character_id};
