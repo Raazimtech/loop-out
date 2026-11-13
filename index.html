@@ -124,8 +124,8 @@ const views = ["auth-view","character-view","mode-view","lobby-view","game-view"
 function showView(id){views.forEach(v=>$(v).classList.toggle("hidden",v!==id));$("app").classList.toggle("game-active",id==="game-view");}
 function setError(message){$("auth-error").textContent=message||"";}
 async function requestLandscape(){
- try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen();}
- catch(_){}
+ if(!matchMedia("(pointer: coarse)").matches)return;
+ try{if(document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen();}catch(_){}
  try{if(screen.orientation?.lock)await screen.orientation.lock("landscape");}catch(_){}
 }
 function enterBoot(){
