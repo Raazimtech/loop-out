@@ -35,11 +35,15 @@ try {
       await navigator.serviceWorker.ready;
       return {
         engine: Boolean(await caches.match("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js")),
-        map: Boolean(await caches.match(new URL("./assets/blackout/building-type-a.glb", location.href).href))
+        map: Boolean(await caches.match(new URL("./assets/blackout/building-type-a.glb", location.href).href)),
+        humanoid: Boolean(await caches.match("https://cdn.jsdelivr.net/gh/mrdoob/three.js@r180/examples/models/gltf/Soldier.glb")),
+        skeletonUtils: Boolean(await caches.match("https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/utils/SkeletonUtils.js"))
       };
     });
     assert.equal(cachedAssets.engine, true, "Three.js must be cached for offline use");
     assert.equal(cachedAssets.map, true, "map assets must be cached for offline use");
+    assert.equal(cachedAssets.humanoid, true, "animated humanoid model must be cached for offline use");
+    assert.equal(cachedAssets.skeletonUtils, true, "skeleton cloning module must be cached for offline use");
     await context.setOffline(true);
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => typeof window.startLoopOutGame === "function", null, { timeout: 15000 });
