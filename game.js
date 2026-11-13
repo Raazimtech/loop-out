@@ -215,7 +215,7 @@ function buildWorld(mode){
   for(let i=0;i<16;i++){const x=-42+i*5.6;box(x,2.5,-54,3,5,1,metal);box(x,2.5,54,3,5,1,metal);}
   for(let i=0;i<7;i++)makeTarget(-18+i*6,-39-(i%2)*3);
   for(let i=0;i<4;i++)makeTarget(-32+i*7,4);
-  for(let i=0;i<6;i++)makeBot(-30+i*12,-4+(i%2)*15,i);
+  [-36,-24,-12,12,24,36].forEach((x,i)=>makeBot(x,-6,i));
   camera.position.set(0,1.7,12);
  }
 
