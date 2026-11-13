@@ -1,0 +1,22 @@
+{
+  "id": "./",
+  "name": "LOOP OUT",
+  "short_name": "LOOP OUT",
+  "description": "LOOP OUT tactical first-person shooter by RAAZIM.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "landscape",
+  "background_color": "#090d12",
+  "theme_color": "#090d12",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "./gamelogo.png",
+      "sizes": "1080x1080",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
