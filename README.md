@@ -86,3 +86,7 @@ The default branch remains untouched. The branch is not yet browser-verified; ru
 - Bot damage reduces the player's health; zero health triggers a local respawn.
 - Hits on bots require two body hits in this prototype; eliminations increment the HUD counter.
 - AI, damage and respawn are currently simulated on each browser client. They are not synchronized or server-validated, so this is a playable local combat layer, not cheat-resistant online PvP.
+
+
+## Verification status
+This branch contains a browser prototype with local AI and realtime presence/position sharing. It has not been run through a real desktop browser and a real mobile browser in this environment, and the realtime experience has not been validated with two simultaneous accounts. The remaining production blockers are a dedicated authoritative game server, server-validated combat, match instances/matchmaking, and a real-device QA pass. These cannot be honestly marked complete from static repository edits alone.
