@@ -32,3 +32,11 @@ jobs:
           grep -q 'const topic="loopout:"+selectedMode' game.js
           grep -q 'blackout_player_profiles' index.html
           grep -q 'RAA<span>Z</span>IM' index.html
+      - name: Browser smoke test for desktop and mobile entry
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          python3 -m http.server 4173 >/tmp/loop-out-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          node tests/boot-smoke.mjs
