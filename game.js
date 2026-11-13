@@ -2,7 +2,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
 import { PointerLockControls } from "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/PointerLockControls.js";
 
 let renderer, scene, camera, controls, animationId, running=false, selectedMode="open_world", worldMode=null, resizeBound=false, clickBound=false;
-let targets=[], obstacles=[], keys={}, ammo=30, reserve=120, score=0, reloading=false, lastShot=0;
+let targets=[], obstacles=[], keys={}, ammo=30, reserve=120, score=0, reloading=false, lastShot=0, weaponModel=null, muzzleFlash=null;
 let yaw=0,pitch=0,stick={x:0,y:0},touchLook=null;
 const raycaster=new THREE.Raycaster();
 const clock=new THREE.Clock();
@@ -24,7 +24,16 @@ function makeTarget(x,z){
 function buildWorld(mode){
  const arena=mode==="small_arena";obstacles=[];targets=[];if(controls)controls.disconnect();
  scene=new THREE.Scene();scene.background=new THREE.Color(0x9aa5a3);scene.fog=new THREE.Fog(0x9aa5a3,35,arena?65:125);
- camera=new THREE.PerspectiveCamera(76,canvas.clientWidth/canvas.clientHeight,.1,250);camera.position.set(0,1.7,12);camera.rotation.order="YXZ";
+ camera=new THREE.PerspectiveCamera(76,canvas.clientWidth/canvas.clientHeight,.1,250);camera.position.set(0,1.7,12);camera.rotation.order="YXZ";scene.add(camera);
+ weaponModel=new THREE.Group();
+ const gunMetal=mat(0x242b30,.55),gunEdge=mat(0x59636a,.5),gunGrip=mat(0x303a35,.9);
+ const receiver=new THREE.Mesh(new THREE.BoxGeometry(.16,.17,.52),gunMetal);receiver.position.set(.34,-.27,-.55);weaponModel.add(receiver);
+ const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.035,.04,.56,10),gunEdge);barrel.rotation.x=Math.PI/2;barrel.position.set(.34,-.23,-.99);weaponModel.add(barrel);
+ const stock=new THREE.Mesh(new THREE.BoxGeometry(.13,.13,.3),gunGrip);stock.position.set(.34,-.28,-.22);weaponModel.add(stock);
+ const grip=new THREE.Mesh(new THREE.BoxGeometry(.11,.22,.14),gunGrip);grip.position.set(.34,-.44,-.49);grip.rotation.x=-.18;weaponModel.add(grip);
+ const sight=new THREE.Mesh(new THREE.BoxGeometry(.08,.07,.12),gunEdge);sight.position.set(.34,-.16,-.62);weaponModel.add(sight);
+ muzzleFlash=new THREE.Mesh(new THREE.SphereGeometry(.085,8,8),new THREE.MeshBasicMaterial({color:0xffc56c}));muzzleFlash.position.set(.34,-.23,-1.28);muzzleFlash.visible=false;weaponModel.add(muzzleFlash);
+ camera.add(weaponModel);
  if(!renderer){renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:"high-performance"});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;}renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
  const hemi=new THREE.HemisphereLight(0xdce6e5,0x303a32,2.1);scene.add(hemi);
  const sun=new THREE.DirectionalLight(0xffe5c2,2.2);sun.position.set(-25,45,20);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-70;sun.shadow.camera.right=70;sun.shadow.camera.top=70;sun.shadow.camera.bottom=-70;scene.add(sun);
@@ -75,7 +84,7 @@ function move(dt){
 }
 function shoot(){
  if(!running||reloading||ammo<=0||performance.now()-lastShot<145)return;
- lastShot=performance.now();ammo--;updateHud();
+ lastShot=performance.now();ammo--;updateHud();if(weaponModel){weaponModel.position.z=.045;setTimeout(()=>{if(weaponModel)weaponModel.position.z=0;},65);}if(muzzleFlash){muzzleFlash.visible=true;setTimeout(()=>{if(muzzleFlash)muzzleFlash.visible=false;},45);}
  raycaster.setFromCamera(new THREE.Vector2(0,0),camera);
  const meshes=[];targets.forEach(t=>{if(t.userData.alive)t.userData.parts.forEach(p=>meshes.push(p));});
  const hit=raycaster.intersectObjects(meshes,false)[0];
